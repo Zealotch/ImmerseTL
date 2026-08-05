@@ -36,5 +36,12 @@
   
   "errServerBusy": { "message": "⏳ Translation Server Busy..." },
   "logTitle": { "message": "History Log" },
-  "logEmpty": { "message": "Menunggu subtitle video..." }
+  "logEmpty": { "message": "Menunggu subtitle video..." },
+  
+  "lblQuickPresets": { "message": "⚡ Quick Presets (1-Klik)" },
+  "lblCurrentPreset": { "message": "Profil Aktif:" },
+  "btnHistoryClear": { "message": "Hapus Riwayat (Clear)" },
+  "btnHistoryMin": { "message": "Perkecil (Minimize)" },
+  "btnHistoryExp": { "message": "Perbesar (Expand)" },
+  "btnHistoryClose": { "message": "Tutup (Close)" }
 }

@@ -519,6 +519,86 @@
       font-family: 'Segoe UI', sans-serif;
       letter-spacing: 0.3px;
     }
+
+    /* Quick Presets Grid Styles */
+    .presets-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin-top: 2px;
+    }
+
+    .preset-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 9px;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 7px;
+      color: #e2e8f0;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      user-select: none;
+      width: 100%;
+    }
+
+    .preset-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.25);
+      transform: translateY(-1px);
+      color: #fff;
+    }
+
+    .preset-btn:active {
+      transform: translateY(0);
+    }
+
+    .preset-btn.active {
+      background: rgba(255, 51, 51, 0.16);
+      border-color: #ff4444;
+      color: #ffffff;
+      font-weight: 700;
+      box-shadow: 0 0 10px rgba(255, 51, 51, 0.35), inset 0 0 4px rgba(255, 51, 51, 0.2);
+    }
+
+    .preset-icon {
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+
+    .preset-name {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .preset-status-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 4px;
+      padding: 4px 6px;
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 5px;
+      font-size: 10.5px;
+      color: #9ba1a6;
+    }
+
+    .preset-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-weight: 700;
+      color: #ff5555;
+      background: rgba(255, 51, 51, 0.12);
+      padding: 2px 7px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 51, 51, 0.25);
+    }
   </style>
 </head>
 <body>
@@ -529,6 +609,43 @@
       <p class="subtitle" data-i18n="uiSubtitle">Panel Pengaturan Subtitle Lanjutan</p>
     </div>
     <span class="badge-ver">PRO</span>
+  </div>
+
+  <!-- Quick Presets Section -->
+  <div class="setting-group" id="quickPresetsGroup">
+    <div class="setting-header">
+      <span data-i18n="lblQuickPresets">⚡ Quick Presets (1-Klik)</span>
+    </div>
+    <div class="presets-grid" id="presetsGrid">
+      <button class="preset-btn" data-preset="cinema">
+        <span class="preset-icon">🎬</span>
+        <span class="preset-name">Cinema</span>
+      </button>
+      <button class="preset-btn" data-preset="comicHeist">
+        <span class="preset-icon">🎭</span>
+        <span class="preset-name">Comic Heist</span>
+      </button>
+      <button class="preset-btn" data-preset="focusLearning">
+        <span class="preset-icon">🎓</span>
+        <span class="preset-name">Focus Learn</span>
+      </button>
+      <button class="preset-btn" data-preset="neonCity">
+        <span class="preset-icon">🌆</span>
+        <span class="preset-name">Neon City</span>
+      </button>
+      <button class="preset-btn" data-preset="minimal">
+        <span class="preset-icon">🪟</span>
+        <span class="preset-name">Minimal Glass</span>
+      </button>
+      <button class="preset-btn" data-preset="accessibility">
+        <span class="preset-icon">👁️</span>
+        <span class="preset-name">Accessibility</span>
+      </button>
+    </div>
+    <div class="preset-status-bar">
+      <span data-i18n="lblCurrentPreset">Profil Aktif:</span>
+      <span id="activePresetBadge" class="preset-badge">Custom</span>
+    </div>
   </div>
 
   <!-- Theme & Custom Color Section -->

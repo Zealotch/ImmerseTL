@@ -126,8 +126,8 @@ window.ImmerseTL = window.ImmerseTL || {};
   // Real-time messages from popup & shortcuts
   try {
     chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-      if (request.action === 'updateLiveSettings' && request.settings) {
-        const s = request.settings;
+      if ((request.action === 'updateLiveSettings' || request.action === 'applyPreset') && (request.settings || request.preset)) {
+        const s = request.settings || request.preset;
         if (s.isSubtitleOverlayEnabled !== undefined) {
           ITL.settings.isSubtitleOverlayEnabled = s.isSubtitleOverlayEnabled;
           if (ITL.overlay && typeof ITL.overlay.updateVisibility === 'function') {
@@ -140,6 +140,7 @@ window.ImmerseTL = window.ImmerseTL || {};
         if (s.fontColor !== undefined) ITL.settings.fontColor = s.fontColor;
         if (s.subtitleTheme !== undefined) ITL.settings.subtitleTheme = s.subtitleTheme;
         if (s.translateMode !== undefined) ITL.settings.translateMode = s.translateMode;
+        if (s.activePreset !== undefined) ITL.settings.activePreset = s.activePreset;
         if (s.showHistory !== undefined) {
           ITL.settings.showHistory = s.showHistory;
           if (ITL.history && typeof ITL.history.ensureOverlay === 'function') {

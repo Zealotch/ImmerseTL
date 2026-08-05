@@ -1,4 +1,5 @@
-// popup.js
+// popup.js - ImmerseTL Advanced Settings Controller & Quick Presets
+
 document.addEventListener('DOMContentLoaded', () => {
   // Apply i18n translations
   document.querySelectorAll('[data-i18n]').forEach(el => {
@@ -11,6 +12,12 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
   });
+
+  const PRESETS = (typeof window !== 'undefined' && window.ImmerseTL_Common) ? window.ImmerseTL_Common.PRESETS : {};
+
+  // Quick Presets Elements
+  const presetButtons = document.querySelectorAll('.preset-btn');
+  const activePresetBadge = document.getElementById('activePresetBadge');
 
   // Numeric Controls & Sliders
   const fontSizeSlider = document.getElementById('fontSize');
@@ -75,12 +82,12 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Helper: Notify active YouTube tab directly for 0ms latency updates
-  function notifyActiveTab(payload) {
+  function notifyActiveTab(payload, isPreset = false) {
     try {
       chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         if (tabs && tabs[0] && tabs[0].id) {
           chrome.tabs.sendMessage(tabs[0].id, {
-            action: 'updateLiveSettings',
+            action: isPreset ? 'applyPreset' : 'updateLiveSettings',
             settings: payload
           }, () => {
             if (chrome.runtime.lastError) { /* ignore error when not on YouTube */ }
@@ -88,6 +95,70 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       });
     } catch (e) {}
+  }
+
+  // Helper: Update Preset UI Active State
+  function updatePresetUI(presetKey) {
+    presetButtons.forEach(btn => {
+      if (btn.getAttribute('data-preset') === presetKey) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+
+    if (activePresetBadge) {
+      if (presetKey && PRESETS && PRESETS[presetKey]) {
+        const p = PRESETS[presetKey];
+        activePresetBadge.textContent = `${p.icon} ${p.name}`;
+        activePresetBadge.style.color = '#ff5555';
+        activePresetBadge.style.borderColor = 'rgba(255, 51, 51, 0.4)';
+      } else {
+        activePresetBadge.textContent = 'Custom ⚙️';
+        activePresetBadge.style.color = '#9ba1a6';
+        activePresetBadge.style.borderColor = 'rgba(255, 255, 255, 0.15)';
+      }
+    }
+  }
+
+  // Flag user manual changes as 'custom' preset
+  function markAsCustomPreset() {
+    updatePresetUI('custom');
+    chrome.storage.local.set({ activePreset: 'custom' });
+    notifyActiveTab({ activePreset: 'custom' });
+  }
+
+  // Apply full preset batch in 1 single payload
+  function applyPreset(presetKey) {
+    if (!PRESETS || !PRESETS[presetKey]) return;
+    const preset = PRESETS[presetKey];
+    const s = preset.settings;
+
+    // 1. Update UI controls simultaneously without triggering manual change hooks
+    if (fontSizeSlider) fontSizeSlider.value = s.fontSize;
+    if (fontSizeInput) fontSizeInput.value = s.fontSize;
+
+    if (bgOpacitySlider) bgOpacitySlider.value = s.bgOpacity;
+    if (bgOpacityInput) bgOpacityInput.value = s.bgOpacity;
+
+    if (bgBlurSlider) bgBlurSlider.value = s.bgBlur;
+    if (bgBlurInput) bgBlurInput.value = s.bgBlur;
+
+    if (subtitleThemeSelect) subtitleThemeSelect.value = s.subtitleTheme;
+    setColorState(s.fontColor);
+
+    if (translateModeSelect) translateModeSelect.value = s.translateMode;
+    if (enableSubtitleCheckbox) enableSubtitleCheckbox.checked = s.isSubtitleOverlayEnabled;
+
+    updateThemePreview(s.subtitleTheme, s.fontColor);
+    updatePresetUI(presetKey);
+
+    // 2. Atomically save entire preset payload to storage
+    const batchPayload = Object.assign({}, s, { activePreset: presetKey });
+    chrome.storage.local.set(batchPayload, () => {
+      // 3. Atomically notify tab in 1 message
+      notifyActiveTab(batchPayload, true);
+    });
   }
 
   // Load saved settings or use defaults
@@ -101,7 +172,8 @@ document.addEventListener('DOMContentLoaded', () => {
         fontColor: '#ffffff',
         showHistory: false,
         translateMode: 'default',
-        subtitleTheme: 'default'
+        subtitleTheme: 'default',
+        activePreset: 'custom'
       };
 
   chrome.storage.local.get(defaultState, (rawItems) => {
@@ -132,6 +204,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // Toggles & Modes
     if (showHistoryCheckbox) showHistoryCheckbox.checked = items.showHistory;
     if (translateModeSelect) translateModeSelect.value = items.translateMode;
+
+    // Preset state
+    updatePresetUI(items.activePreset || 'custom');
+  });
+
+  // --- PRESET BUTTONS LISTENERS ---
+  presetButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const presetKey = btn.getAttribute('data-preset');
+      applyPreset(presetKey);
+    });
   });
 
   // --- BIDIRECTIONAL CONTROLS SYNC ---
@@ -144,6 +227,7 @@ document.addEventListener('DOMContentLoaded', () => {
     slider.addEventListener('input', (e) => {
       const val = Number(e.target.value);
       input.value = val;
+      markAsCustomPreset();
       chrome.storage.local.set({ [storageKey]: val });
       notifyActiveTab({ [storageKey]: val });
     });
@@ -156,6 +240,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (val > max) val = max;
       
       slider.value = val;
+      markAsCustomPreset();
       chrome.storage.local.set({ [storageKey]: val });
       notifyActiveTab({ [storageKey]: val });
     };
@@ -167,6 +252,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (val > max) val = max;
       input.value = val;
       slider.value = val;
+      markAsCustomPreset();
       chrome.storage.local.set({ [storageKey]: val });
       notifyActiveTab({ [storageKey]: val });
     });
@@ -188,13 +274,13 @@ document.addEventListener('DOMContentLoaded', () => {
     fontColorSelect.addEventListener('change', (e) => {
       let color = e.target.value;
       if (color === 'custom') {
-        // Open native color picker dialog
         if (customColorPicker) {
           customColorPicker.click();
           color = customColorPicker.value;
         }
       } else {
         setColorState(color);
+        markAsCustomPreset();
         chrome.storage.local.set({ fontColor: color });
         notifyActiveTab({ fontColor: color });
       }
@@ -206,6 +292,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const handleCustomColor = (e) => {
       const color = e.target.value;
       setColorState(color);
+      markAsCustomPreset();
       chrome.storage.local.set({ fontColor: color });
       notifyActiveTab({ fontColor: color });
     };
@@ -217,6 +304,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (subtitleThemeSelect) {
     subtitleThemeSelect.addEventListener('change', (e) => {
       const theme = e.target.value;
+      markAsCustomPreset();
       chrome.storage.local.set({ subtitleTheme: theme });
       updateThemePreview(theme, customColorPicker ? customColorPicker.value : '#ffffff');
       notifyActiveTab({ subtitleTheme: theme });
@@ -240,10 +328,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-
   if (translateModeSelect) {
     translateModeSelect.addEventListener('change', (e) => {
       const mode = e.target.value;
+      markAsCustomPreset();
       chrome.storage.local.set({ translateMode: mode });
       notifyActiveTab({ translateMode: mode });
     });

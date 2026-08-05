@@ -9,10 +9,11 @@ window.ImmerseTL = window.ImmerseTL || {};
     let isDragging = false;
     let startX, startY, initialX = 0, initialY = 0;
 
-    handleElement.addEventListener('mousedown', (e) => {
+    handleElement.addEventListener('pointerdown', (e) => {
       if (e.target.tagName.toLowerCase() === 'button' || e.target.closest('button')) return;
       
       isDragging = true;
+      handleElement.setPointerCapture(e.pointerId); // Ensure we don't lose drag if moving too fast
       startX = e.clientX;
       startY = e.clientY;
       
@@ -23,7 +24,7 @@ window.ImmerseTL = window.ImmerseTL || {};
       element.style.transition = 'none';
     });
 
-    document.addEventListener('mousemove', (e) => {
+    handleElement.addEventListener('pointermove', (e) => {
       if (!isDragging) return;
       
       const dx = e.clientX - startX;
@@ -32,13 +33,15 @@ window.ImmerseTL = window.ImmerseTL || {};
       const newX = initialX + dx;
       const newY = initialY + dy;
       
+      // Note: No boundary constraints here! This enables the "Free-Floating Subtitle" roadmap feature!
       element.style.setProperty('--drag-x', newX + 'px');
       element.style.setProperty('--drag-y', newY + 'px');
     });
 
-    document.addEventListener('mouseup', () => {
+    handleElement.addEventListener('pointerup', (e) => {
       if (isDragging) {
         isDragging = false;
+        handleElement.releasePointerCapture(e.pointerId);
         element.style.transition = '';
         
         const finalX = parseFloat(element.style.getPropertyValue('--drag-x')) || 0;

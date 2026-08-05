@@ -70,7 +70,9 @@ window.ImmerseTL = window.ImmerseTL || {};
     const clearBtn = document.createElement('button');
     clearBtn.className = 'yt-history-btn yt-history-clear-btn';
     clearBtn.textContent = '🗑️';
-    clearBtn.title = "Clear History";
+    let clearTitle = "Clear History";
+    try { clearTitle = chrome.i18n.getMessage("btnHistoryClear") || clearTitle; } catch(e) {}
+    clearBtn.title = clearTitle;
     clearBtn.onclick = (e) => {
       e.stopPropagation();
       subtitleHistory = [];
@@ -81,18 +83,25 @@ window.ImmerseTL = window.ImmerseTL || {};
     const minBtn = document.createElement('button');
     minBtn.className = 'yt-history-btn yt-history-min-btn';
     minBtn.textContent = isHistoryMinimized ? '+' : '−';
-    minBtn.title = isHistoryMinimized ? "Expand" : "Minimize";
+    let minTitle = "Minimize";
+    let expTitle = "Expand";
+    try { 
+      minTitle = chrome.i18n.getMessage("btnHistoryMin") || minTitle; 
+      expTitle = chrome.i18n.getMessage("btnHistoryExp") || expTitle;
+    } catch(e) {}
+    
+    minBtn.title = isHistoryMinimized ? expTitle : minTitle;
     minBtn.onclick = (e) => {
       e.stopPropagation();
       isHistoryMinimized = !isHistoryMinimized;
       if (isHistoryMinimized) {
         historyOverlay.classList.add('minimized');
         minBtn.textContent = '+';
-        minBtn.title = "Expand";
+        minBtn.title = expTitle;
       } else {
         historyOverlay.classList.remove('minimized');
         minBtn.textContent = '−';
-        minBtn.title = "Minimize";
+        minBtn.title = minTitle;
         if (historyContent) historyContent.scrollTop = historyContent.scrollHeight;
       }
     };
@@ -101,7 +110,9 @@ window.ImmerseTL = window.ImmerseTL || {};
     const closeBtn = document.createElement('button');
     closeBtn.className = 'yt-history-btn yt-history-close-btn';
     closeBtn.innerHTML = '&times;';
-    closeBtn.title = "Tutup (Close)";
+    let closeTitle = "Tutup (Close)";
+    try { closeTitle = chrome.i18n.getMessage("btnHistoryClose") || closeTitle; } catch(e) {}
+    closeBtn.title = closeTitle;
     closeBtn.onclick = (e) => {
       e.stopPropagation();
       if (ITL.settings) ITL.settings.showHistory = false;

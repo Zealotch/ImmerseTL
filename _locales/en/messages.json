@@ -36,5 +36,12 @@
   
   "errServerBusy": { "message": "⏳ Translation Server Busy..." },
   "logTitle": { "message": "History Log" },
-  "logEmpty": { "message": "Waiting for video subtitles..." }
+  "logEmpty": { "message": "Waiting for video subtitles..." },
+  
+  "lblQuickPresets": { "message": "⚡ Quick Presets (1-Click)" },
+  "lblCurrentPreset": { "message": "Active Profile:" },
+  "btnHistoryClear": { "message": "Clear History" },
+  "btnHistoryMin": { "message": "Minimize" },
+  "btnHistoryExp": { "message": "Expand" },
+  "btnHistoryClose": { "message": "Close" }
 }
