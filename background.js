@@ -1,0 +1,45 @@
+// background.js
+chrome.commands.onCommand.addListener((command) => {
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    if (tabs[0]) {
+      chrome.tabs.sendMessage(tabs[0].id, { command: command }).catch(() => {});
+    }
+  });
+});
+
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === 'fetchTranslation') {
+    const { text, targetLang } = request;
+    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLang}&dt=t&dt=rm&q=${encodeURIComponent(text)}`;
+    
+    fetch(url)
+      .then(res => res.json())
+      .then(json => {
+        let translation = "";
+        if (json[0]) {
+          for (let i = 0; i < json[0].length; i++) {
+            if (json[0][i][0]) {
+              translation += json[0][i][0];
+            }
+          }
+        }
+        
+        let romaji = "";
+        let sourceLang = json[2] || "";
+        
+        // Only attempt to extract Romanization if source language is Japanese
+        if (json[0] && sourceLang === 'ja') {
+          const lastElement = json[0][json[0].length - 1];
+          if (lastElement && lastElement[3]) {
+            romaji = lastElement[3];
+          }
+        }
+        sendResponse({ success: true, translation: translation.trim(), romaji: romaji.trim(), sourceLang: sourceLang });
+      })
+      .catch(error => {
+        sendResponse({ success: false, error: error.message });
+      });
+      
+    return true; // Indicates async response
+  }
+});

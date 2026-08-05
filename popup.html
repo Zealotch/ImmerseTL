@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ImmerseTL</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      margin: 0;
+      padding: 0;
+      background: #111114;
+      overflow: hidden;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      width: 345px;
+      max-height: 580px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      margin: 0;
+      padding: 14px 14px 28px 14px;
+      background: radial-gradient(circle at top right, #24161b 0%, #15151a 50%, #0d0d10 100%);
+      color: #fff;
+    }
+
+    /* Modern Auto-hiding Scrollbar */
+    ::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: transparent;
+      border-radius: 10px;
+      transition: background 0.3s ease;
+    }
+
+    body:hover::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.18);
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 51, 51, 0.8) !important;
+    }
+
+    ::-webkit-scrollbar-thumb:active {
+      background: #ff3333 !important;
+    }
+    
+    .header {
+      margin-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header-text h2 {
+      margin: 0 0 2px 0;
+      font-size: 16px;
+      font-weight: 700;
+      color: #ff3333;
+      letter-spacing: 0.5px;
+      text-shadow: 0 0 12px rgba(255, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .header-text p.subtitle {
+      font-size: 11px;
+      color: #9ba1a6;
+      margin: 0;
+    }
+
+    .badge-ver {
+      font-size: 10px;
+      font-weight: 700;
+      background: rgba(255, 51, 51, 0.15);
+      color: #ff5555;
+      border: 1px solid rgba(255, 51, 51, 0.3);
+      padding: 2px 7px;
+      border-radius: 12px;
+      letter-spacing: 0.5px;
+    }
+    
+    .setting-group {
+      background: rgba(255, 255, 255, 0.035);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    
+    .setting-group:hover {
+      background: rgba(255, 255, 255, 0.055);
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .setting-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 600;
+      color: #e2e8f0;
+    }
+
+    /* Interactive Number Input Badge */
+    .num-input-wrap {
+      display: inline-flex;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 6px;
+      padding: 1px 5px;
+      transition: all 0.2s ease;
+    }
+
+    .num-input-wrap:hover {
+      border-color: rgba(255, 255, 255, 0.25);
+      background: rgba(0, 0, 0, 0.6);
+    }
+
+    .num-input-wrap:focus-within {
+      border-color: #ff3333;
+      box-shadow: 0 0 8px rgba(255, 51, 51, 0.35);
+      background: rgba(0, 0, 0, 0.7);
+    }
+
+    .num-input {
+      width: 30px;
+      background: transparent;
+      border: none;
+      color: #ff5555;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      text-align: right;
+      outline: none;
+      padding: 0;
+      -moz-appearance: textfield;
+    }
+
+    .num-input::-webkit-outer-spin-button,
+    .num-input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .unit-badge {
+      color: #8e95a0;
+      font-size: 10.5px;
+      font-weight: 600;
+      margin-left: 2px;
+      user-select: none;
+    }
+    
+    /* Custom Range Sliders */
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 3px;
+      outline: none;
+      margin: 2px 0;
+      cursor: pointer;
+    }
+    
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 15px;
+      width: 15px;
+      border-radius: 50%;
+      background: #ff3333;
+      cursor: pointer;
+      box-shadow: 0 0 6px rgba(255, 0, 0, 0.6);
+      transition: transform 0.15s ease, background 0.2s ease, box-shadow 0.2s ease;
+      border: 2px solid #ffffff;
+    }
+    
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.25);
+      background: #ff5555;
+      box-shadow: 0 0 10px rgba(255, 51, 51, 0.9);
+    }
+    
+    input[type="range"]::-webkit-slider-thumb:active {
+      transform: scale(1.1);
+      background: #e60000;
+    }
+
+    /* Custom Select with Color Picker */
+    .color-select-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .color-select-row .select-wrapper {
+      flex: 1;
+    }
+
+    .color-picker-wrap {
+      position: relative;
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(0, 0, 0, 0.3);
+      cursor: pointer;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+    }
+
+    .color-picker-wrap:hover {
+      border-color: #ff3333;
+      transform: scale(1.05);
+      box-shadow: 0 0 8px rgba(255, 51, 51, 0.35);
+    }
+
+    .color-picker-input {
+      position: absolute;
+      top: -8px;
+      left: -8px;
+      width: 48px;
+      height: 48px;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      background: transparent;
+      opacity: 0.01;
+    }
+
+    .color-preview-dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.8);
+      box-shadow: 0 0 4px rgba(0,0,0,0.5);
+      pointer-events: none;
+      background-color: #ffffff;
+      transition: background-color 0.2s;
+    }
+    
+    .select-wrapper {
+      position: relative;
+    }
+    
+    select {
+      width: 100%;
+      padding: 8px 10px;
+      background: rgba(0, 0, 0, 0.3);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      outline: none;
+      appearance: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    
+    select:focus {
+      border-color: #ff3333;
+      box-shadow: 0 0 6px rgba(255, 51, 51, 0.25);
+    }
+
+    option {
+      background-color: #1e1e24;
+      color: #fff;
+      font-weight: 500;
+    }
+
+    .select-wrapper::after {
+      content: "▾";
+      font-size: 11px;
+      color: #888;
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+    
+    /* Custom Toggle Switch */
+    .toggle-container {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+    }
+    
+    .toggle-container label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #e2e8f0;
+      cursor: pointer;
+    }
+
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 38px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+    
+    .toggle-switch input { 
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #383842;
+      transition: .25s;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 14px;
+      width: 14px;
+      left: 2px;
+      bottom: 2px;
+      background-color: white;
+      transition: .25s cubic-bezier(0.4, 0.0, 0.2, 1);
+      border-radius: 50%;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    input:checked + .slider {
+      background-color: #ff3333;
+      border-color: #ff3333;
+    }
+    
+    input:checked + .slider:before {
+      transform: translateX(18px);
+    }
+    
+    /* Buttons with generous bottom margin */
+    .btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      margin-top: 4px;
+      margin-bottom: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px 12px;
+      border: none;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    #openShortcutsBtn {
+      background: rgba(255, 255, 255, 0.05);
+      color: #e2e8f0;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    #openShortcutsBtn:hover {
+      background: rgba(255, 255, 255, 0.09);
+      border-color: rgba(255, 255, 255, 0.2);
+      color: #fff;
+    }
+    
+    #resetPosBtn {
+      background: linear-gradient(135deg, #e60000, #b30000);
+      color: white;
+      box-shadow: 0 3px 10px rgba(255, 0, 0, 0.25);
+    }
+    
+    #resetPosBtn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 5px 14px rgba(255, 0, 0, 0.4);
+    }
+    
+    #resetPosBtn:active {
+      transform: translateY(0);
+    }
+
+    /* Theme Preview Mini Box */
+    .theme-preview-box {
+      margin-top: 2px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      text-align: center;
+      transition: all 0.3s ease;
+      background: rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+    }
+    .theme-preview-text {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: #ffffff;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+      transition: all 0.3s ease;
+      word-break: break-word;
+    }
+
+    /* Preview Themes */
+    .theme-preview-box.preview-cinema {
+      background: rgba(0, 0, 0, 0.92);
+      border: none;
+      border-radius: 4px;
+      backdrop-filter: none;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.7);
+    }
+    .theme-preview-box.preview-cinema .theme-preview-text {
+      text-shadow: 2px 2px 4px rgba(0,0,0,1);
+      font-weight: 700;
+    }
+
+    .theme-preview-box.preview-sakura {
+      background: rgba(120, 40, 70, 0.55);
+      border: 1px solid rgba(255, 182, 193, 0.3);
+      border-radius: 10px;
+      box-shadow: 0 2px 16px rgba(255, 105, 135, 0.12);
+    }
+    .theme-preview-box.preview-sakura .theme-preview-text {
+      text-shadow: 1px 1px 3px rgba(80, 0, 20, 0.9);
+    }
+
+    .theme-preview-box.preview-neon {
+      background: rgba(5, 5, 15, 0.88);
+      border: 1px solid rgba(0, 255, 255, 0.4);
+      border-radius: 6px;
+      box-shadow: 0 0 12px rgba(0, 255, 255, 0.2);
+      backdrop-filter: none;
+    }
+    .theme-preview-box.preview-neon .theme-preview-text {
+      text-shadow: 0 0 8px currentColor, 0 0 18px currentColor;
+    }
+
+    .theme-preview-box.preview-retro {
+      background: rgba(30, 30, 30, 0.85);
+      border: 2px solid rgba(255, 255, 255, 0.25);
+      border-radius: 2px;
+      backdrop-filter: none;
+      box-shadow: none;
+    }
+    .theme-preview-box.preview-retro .theme-preview-text {
+      font-family: 'Courier New', monospace;
+      text-shadow: 2px 0 0 rgba(255,0,0,0.15), -2px 0 0 rgba(0,100,255,0.15);
+      letter-spacing: 0.5px;
+    }
+
+    .theme-preview-box.preview-nature {
+      background: rgba(15, 50, 25, 0.6);
+      border: 1px solid rgba(100, 200, 120, 0.2);
+      border-radius: 10px;
+      box-shadow: 0 2px 12px rgba(0, 50, 20, 0.3);
+    }
+    .theme-preview-box.preview-nature .theme-preview-text {
+      text-shadow: 1px 1px 3px rgba(0, 20, 0, 0.9);
+    }
+
+    .theme-preview-box.preview-invisible {
+      background: transparent !important;
+      border: 1px dashed rgba(255,255,255,0.2) !important;
+      backdrop-filter: none !important;
+      box-shadow: none !important;
+    }
+    .theme-preview-box.preview-invisible .theme-preview-text {
+      text-shadow: 2px 2px 4px rgba(0,0,0,1), 0 0 12px rgba(0,0,0,0.8);
+      font-weight: 800;
+    }
+
+    .theme-preview-box.preview-gaming {
+      background: rgba(5, 10, 25, 0.82);
+      border: 1px solid rgba(60, 130, 255, 0.35);
+      border-left: 3px solid rgba(60, 130, 255, 0.8);
+      border-radius: 2px 6px 6px 2px;
+      box-shadow: 0 0 10px rgba(30, 80, 200, 0.15);
+      backdrop-filter: none;
+    }
+    .theme-preview-box.preview-gaming .theme-preview-text {
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.9);
+      font-family: 'Segoe UI', sans-serif;
+      letter-spacing: 0.3px;
+    }
+  </style>
+</head>
+<body>
+  
+  <div class="header">
+    <div class="header-text">
+      <h2><span style="font-size: 16px;">⚡</span> <span data-i18n="uiTitle">ImmerseTL</span></h2>
+      <p class="subtitle" data-i18n="uiSubtitle">Panel Pengaturan Subtitle Lanjutan</p>
+    </div>
+    <span class="badge-ver">PRO</span>
+  </div>
+
+  <!-- Theme & Custom Color Section -->
+  <div class="setting-group" style="display: flex; flex-direction: column; gap: 8px;">
+    <div>
+      <div class="setting-header" style="margin-bottom: 4px;">
+        <label for="subtitleTheme" data-i18n="lblTheme">🎨 Tema Subtitle</label>
+      </div>
+      <div class="select-wrapper">
+        <select id="subtitleTheme">
+          <option value="default">🌑 Glassmorphism (Default)</option>
+          <option value="cinema">🎬 Cinema</option>
+          <option value="sakura">🌸 Sakura</option>
+          <option value="neon">🔥 Neon Glow</option>
+          <option value="retro">📺 Retro VHS</option>
+          <option value="nature">🍃 Nature</option>
+          <option value="invisible">👻 Invisible</option>
+          <option value="gaming">🎮 Gaming HUD</option>
+        </select>
+      </div>
+    </div>
+
+    <div>
+      <div class="setting-header" style="margin-bottom: 4px;">
+        <label for="fontColor" data-i18n="lblFontColor">Warna Teks Subtitle</label>
+      </div>
+      <div class="color-select-row">
+        <div class="select-wrapper">
+          <select id="fontColor">
+            <option value="#ffffff" data-i18n="colorWhite">🤍 Putih Standar</option>
+            <option value="#ffd700" data-i18n="colorYellow">💛 Kuning (Gaya Anime)</option>
+            <option value="#00ffff" data-i18n="colorCyan">💙 Cyan (Biru Muda)</option>
+            <option value="#00ff00" data-i18n="colorGreen">💚 Hijau Terang</option>
+            <option value="#ffb6c1" data-i18n="colorPink">🌸 Pink Pastel</option>
+            <option value="#ff8c00" data-i18n="colorOrange">🍊 Oranye Terang</option>
+            <option value="#dda0dd" data-i18n="colorPurple">🍇 Ungu Muda (Plum)</option>
+            <option value="#cccccc" data-i18n="colorGray">🌫️ Abu-abu Lembut</option>
+            <option value="custom" data-i18n="colorCustom">🎨 Warna Kustom...</option>
+          </select>
+        </div>
+        <div class="color-picker-wrap" title="Klik untuk pilih warna custom">
+          <div id="colorPreviewDot" class="color-preview-dot"></div>
+          <input type="color" id="customColorPicker" class="color-picker-input" value="#ffffff">
+        </div>
+      </div>
+    </div>
+
+    <div id="themePreview" class="theme-preview-box">
+      <span class="theme-preview-text">Sample subtitle text 字幕サンプル</span>
+    </div>
+  </div>
+
+  <!-- Font Size with Direct Numeric Input -->
+  <div class="setting-group">
+    <div class="setting-header">
+      <label for="fontSize" data-i18n="lblFontSize">Ukuran Font</label>
+      <div class="num-input-wrap">
+        <input type="number" id="fontSizeInput" class="num-input" min="10" max="64" step="1" value="28">
+        <span class="unit-badge">px</span>
+      </div>
+    </div>
+    <input type="range" id="fontSize" min="10" max="64" step="1" value="28">
+  </div>
+
+  <!-- Background Opacity with Direct Numeric Input -->
+  <div class="setting-group">
+    <div class="setting-header">
+      <label for="bgOpacity" data-i18n="lblBgOpacity">Kegelapan Background</label>
+      <div class="num-input-wrap">
+        <input type="number" id="bgOpacityInput" class="num-input" min="0" max="100" step="1" value="60">
+        <span class="unit-badge">%</span>
+      </div>
+    </div>
+    <input type="range" id="bgOpacity" min="0" max="100" step="1" value="60">
+  </div>
+
+  <!-- Operation Mode -->
+  <div class="setting-group">
+    <div class="setting-header" style="margin-bottom: -2px;">
+      <label for="translateMode" data-i18n="lblTranslateMode">Mode Operasi</label>
+    </div>
+    <div class="select-wrapper">
+      <select id="translateMode">
+        <option value="default" data-i18n="modeDefault">📺 Buffer Biasa (Bawaan YT)</option>
+        <option value="dual_en" data-i18n="modeDualEn">🇯🇵 Dual Sub: Romaji + Inggris</option>
+        <option value="dual_id" data-i18n="modeDualId">🇯🇵 Dual Sub: Romaji + Indonesia</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Glass Effect Blur with Direct Numeric Input -->
+  <div class="setting-group">
+    <div class="setting-header">
+      <label for="bgBlur" data-i18n="lblBgBlur">Efek Kaca (Blur)</label>
+      <div class="num-input-wrap">
+        <input type="number" id="bgBlurInput" class="num-input" min="0" max="30" step="1" value="8">
+        <span class="unit-badge">px</span>
+      </div>
+    </div>
+    <input type="range" id="bgBlur" min="0" max="30" step="1" value="8">
+  </div>
+
+  <!-- Toggles -->
+  <div class="setting-group toggle-container">
+    <label for="enableSubtitle" data-i18n="lblEnableSubtitle">Aktifkan Subtitle Kustom</label>
+    <label class="toggle-switch">
+      <input type="checkbox" id="enableSubtitle" checked>
+      <span class="slider"></span>
+    </label>
+  </div>
+
+  <div class="setting-group toggle-container">
+    <label for="showHistory" data-i18n="lblShowHistory">Tampilkan Chat History Log</label>
+    <label class="toggle-switch">
+      <input type="checkbox" id="showHistory">
+      <span class="slider"></span>
+    </label>
+  </div>
+
+
+
+  <!-- Actions -->
+  <div class="btn-group">
+    <button id="openShortcutsBtn" data-i18n="btnShortcuts">
+      ⚙️ Ubah Tombol Shortcut
+    </button>
+
+    <button id="resetPosBtn" data-i18n="btnResetPos">
+      🔄 Reset Posisi Subtitle
+    </button>
+  </div>
+
+  <script src="common.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
