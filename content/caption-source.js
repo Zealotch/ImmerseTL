@@ -10,7 +10,7 @@ window.ImmerseTL = window.ImmerseTL || {};
   function checkObserver() {
     if (!document.querySelector('video')) return;
 
-    const targetNodes = document.querySelectorAll('.ytp-caption-window-container');
+    const targetNodes = document.querySelectorAll('.ytp-caption-window-container, #ytp-caption-window-container, .caption-window');
     let anyVisible = false;
     
     targetNodes.forEach(targetNode => {
@@ -21,17 +21,26 @@ window.ImmerseTL = window.ImmerseTL || {};
           ITL.overlay.updateVisibility();
         }
         
+        // Immediately extract current text if segments already exist
+        const initialSegments = targetNode.querySelectorAll('.ytp-caption-segment');
+        if (initialSegments.length > 0) {
+          let initialText = Array.from(initialSegments).map(seg => seg.textContent).join(' ');
+          if (initialText && initialText.trim() && ITL.overlay && typeof ITL.overlay.updateCustomSubtitle === 'function') {
+            ITL.overlay.updateCustomSubtitle(initialText);
+          }
+        }
+
         const obs = new MutationObserver(() => {
           if (targetNode.offsetWidth === 0 || targetNode.offsetHeight === 0) return;
           if (getComputedStyle(targetNode).display === 'none') return;
 
-          const captionWindow = targetNode.querySelector('.ytp-caption-window');
+          const captionWindow = targetNode.querySelector('.ytp-caption-window') || (targetNode.classList.contains('ytp-caption-window') ? targetNode : null);
           const isHidden = captionWindow && getComputedStyle(captionWindow).display === 'none';
           
           const segments = targetNode.querySelectorAll('.ytp-caption-segment');
           if (segments.length > 0 && !isHidden) {
             let fullText = Array.from(segments).map(seg => seg.textContent).join(' ');
-            if (ITL.overlay && typeof ITL.overlay.updateCustomSubtitle === 'function') {
+            if (fullText && fullText.trim() && ITL.overlay && typeof ITL.overlay.updateCustomSubtitle === 'function') {
               ITL.overlay.updateCustomSubtitle(fullText);
             }
           }
@@ -48,7 +57,7 @@ window.ImmerseTL = window.ImmerseTL || {};
       }
       
       if (targetNode.offsetWidth > 0 && targetNode.offsetHeight > 0 && getComputedStyle(targetNode).display !== 'none') {
-        const captionWindow = targetNode.querySelector('.ytp-caption-window');
+        const captionWindow = targetNode.querySelector('.ytp-caption-window') || (targetNode.classList.contains('ytp-caption-window') ? targetNode : null);
         const isHidden = captionWindow && getComputedStyle(captionWindow).display === 'none';
         const segments = targetNode.querySelectorAll('.ytp-caption-segment');
         
@@ -87,7 +96,7 @@ window.ImmerseTL = window.ImmerseTL || {};
     }
 
     // Reset observing flags on existing DOM nodes
-    const targetNodes = document.querySelectorAll('.ytp-caption-window-container');
+    const targetNodes = document.querySelectorAll('.ytp-caption-window-container, #ytp-caption-window-container, .caption-window');
     targetNodes.forEach(node => {
       delete node.dataset.isObservedByImmerseTL;
     });

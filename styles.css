@@ -96,13 +96,24 @@
 
 /* Hide YouTube's default caption window when ImmerseTL custom subtitles are enabled */
 :root:not(.immerselt-custom-subtitles-disabled) .ytp-caption-window-container,
-.immerselt-custom-subtitles-enabled .ytp-caption-window-container {
-  opacity: 0.001 !important;
+:root:not(.immerselt-custom-subtitles-disabled) .caption-window,
+:root:not(.immerselt-custom-subtitles-disabled) .ytp-caption-window-rollup,
+:root:not(.immerselt-custom-subtitles-disabled) .ytp-caption-window-bottom,
+.immerselt-custom-subtitles-enabled .ytp-caption-window-container,
+.immerselt-custom-subtitles-enabled .caption-window,
+.immerselt-custom-subtitles-enabled .ytp-caption-window-rollup,
+.immerselt-custom-subtitles-enabled .ytp-caption-window-bottom {
+  opacity: 0.0001 !important;
+  font-size: 0px !important;
+  line-height: 0 !important;
   pointer-events: none !important;
+  user-select: none !important;
 }
 
-.immerselt-custom-subtitles-disabled .ytp-caption-window-container {
+.immerselt-custom-subtitles-disabled .ytp-caption-window-container,
+.immerselt-custom-subtitles-disabled .caption-window {
   opacity: 1 !important;
+  font-size: inherit !important;
   pointer-events: auto !important;
 }
 

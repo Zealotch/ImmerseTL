@@ -10,12 +10,15 @@ window.ImmerseTL = window.ImmerseTL || {};
 
   function updateVisibility() {
     const isEnabled = ITL.settings ? ITL.settings.isSubtitleOverlayEnabled : true;
-    const isHooked = ITL.captionSource ? ITL.captionSource.isHooked : false;
 
+    if (!overlayElement) {
+      overlayElement = document.getElementById('yt-smart-translate-overlay');
+    }
     if (overlayElement) {
       overlayElement.style.display = isEnabled ? 'flex' : 'none';
     }
-    if (isEnabled && isHooked) {
+
+    if (isEnabled) {
       document.documentElement.classList.remove('immerselt-custom-subtitles-disabled');
       document.documentElement.classList.add('immerselt-custom-subtitles-enabled');
     } else {
@@ -24,7 +27,14 @@ window.ImmerseTL = window.ImmerseTL || {};
     }
   }
 
-  function applyThemeAndStyles() {
+  function applyThemeAndStyles(forceRerender = false) {
+    if (!overlayElement) {
+      overlayElement = document.getElementById('yt-smart-translate-overlay');
+    }
+    if (overlayElement && !currentTextElement) {
+      currentTextElement = overlayElement.querySelector('.yt-smart-translate-text');
+    }
+
     const s = ITL.settings || {};
     const fontSize = s.fontSize || 28;
     const bgOpacity = (s.bgOpacity !== undefined ? s.bgOpacity : 60) / 100;
@@ -48,6 +58,10 @@ window.ImmerseTL = window.ImmerseTL || {};
         dualTrans.style.setProperty('color', fontColor, 'important');
       }
     }
+
+    if (forceRerender && currentText) {
+      updateCustomSubtitle(currentText, true);
+    }
   }
 
   function createOverlay() {
@@ -57,6 +71,7 @@ window.ImmerseTL = window.ImmerseTL || {};
     let existingOverlay = document.getElementById('yt-smart-translate-overlay');
     if (existingOverlay) {
       overlayElement = existingOverlay;
+      currentTextElement = overlayElement.querySelector('.yt-smart-translate-text');
     } else {
       overlayElement = document.createElement('div');
       overlayElement.id = 'yt-smart-translate-overlay';
@@ -75,7 +90,7 @@ window.ImmerseTL = window.ImmerseTL || {};
     updateVisibility();
   }
 
-  async function updateCustomSubtitle(text) {
+  async function updateCustomSubtitle(text, forceRerender = false) {
     if (!overlayElement) createOverlay();
     if (!overlayElement) return;
     
@@ -86,8 +101,8 @@ window.ImmerseTL = window.ImmerseTL || {};
     }
     if (!text || !text.trim()) return;
 
-    // If text is unchanged, ensure visibility and return
-    if (currentTextElement && currentText === text) {
+    // If text is unchanged and not forcing rerender, ensure visibility and return
+    if (!forceRerender && currentTextElement && currentText === text) {
       currentTextElement.style.opacity = '1';
       applyThemeAndStyles();
       return;

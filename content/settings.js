@@ -115,7 +115,7 @@ window.ImmerseTL = window.ImmerseTL || {};
         }
         
         if (ITL.overlay && typeof ITL.overlay.applyThemeAndStyles === 'function') {
-          ITL.overlay.applyThemeAndStyles();
+          ITL.overlay.applyThemeAndStyles(true);
         }
       }
     });
@@ -166,7 +166,7 @@ window.ImmerseTL = window.ImmerseTL || {};
           }
         }
         if (ITL.overlay && typeof ITL.overlay.applyThemeAndStyles === 'function') {
-          ITL.overlay.applyThemeAndStyles();
+          ITL.overlay.applyThemeAndStyles(true);
         }
         sendResponse({ success: true });
       } else if (request.command === 'toggle_history') {

@@ -84,13 +84,17 @@ document.addEventListener('DOMContentLoaded', () => {
   // Helper: Notify active YouTube tab directly for 0ms latency updates
   function notifyActiveTab(payload, isPreset = false) {
     try {
-      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        if (tabs && tabs[0] && tabs[0].id) {
-          chrome.tabs.sendMessage(tabs[0].id, {
-            action: isPreset ? 'applyPreset' : 'updateLiveSettings',
-            settings: payload
-          }, () => {
-            if (chrome.runtime.lastError) { /* ignore error when not on YouTube */ }
+      chrome.tabs.query({ url: "*://*.youtube.com/*" }, (tabs) => {
+        if (tabs && tabs.length > 0) {
+          tabs.forEach(tab => {
+            if (tab.id) {
+              chrome.tabs.sendMessage(tab.id, {
+                action: isPreset ? 'applyPreset' : 'updateLiveSettings',
+                settings: payload
+              }, () => {
+                if (chrome.runtime.lastError) { /* ignore error when not on YouTube */ }
+              });
+            }
           });
         }
       });
