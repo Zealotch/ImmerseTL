@@ -225,30 +225,87 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // --- CUSTOM MODAL UI LOGIC ---
+  const modalOverlay = document.getElementById('customModalOverlay');
+  const modalMessage = document.getElementById('modalMessage');
+  const modalInput = document.getElementById('modalInput');
+  const modalBtnCancel = document.getElementById('modalBtnCancel');
+  const modalBtnConfirm = document.getElementById('modalBtnConfirm');
+  
+  function showCustomModal(options, callback) {
+    modalMessage.textContent = options.message;
+    
+    if (options.type === 'prompt') {
+      modalInput.style.display = 'block';
+      modalInput.value = options.defaultValue || '';
+      modalInput.placeholder = "Ketik di sini...";
+    } else {
+      modalInput.style.display = 'none';
+      modalInput.value = '';
+    }
+    
+    modalOverlay.classList.add('show');
+    if (options.type === 'prompt') {
+      modalInput.focus();
+    }
+    
+    // Cleanup listeners
+    const cleanup = () => {
+      modalOverlay.classList.remove('show');
+      modalBtnConfirm.removeEventListener('click', onConfirm);
+      modalBtnCancel.removeEventListener('click', onCancel);
+    };
+    
+    const onConfirm = () => {
+      cleanup();
+      if (options.type === 'prompt') {
+        callback(modalInput.value);
+      } else {
+        callback(true);
+      }
+    };
+    
+    const onCancel = () => {
+      cleanup();
+      if (options.type === 'prompt') {
+        callback(null);
+      } else {
+        callback(false);
+      }
+    };
+    
+    modalBtnConfirm.addEventListener('click', onConfirm);
+    modalBtnCancel.addEventListener('click', onCancel);
+  }
+
   if (savePresetBtn) {
     savePresetBtn.addEventListener('click', () => {
-      const name = prompt(chrome.i18n.getMessage("promptPresetName") || "Masukkan nama preset baru:");
-      if (!name || !name.trim()) return;
-      
-      const key = 'custom_' + Date.now();
-      const newPreset = {
-        key: key,
-        name: name.trim(),
-        icon: '⭐',
-        settings: {
-          subtitleTheme: subtitleThemeSelect.value,
-          fontColor: fontColorSelect.value === 'custom' ? customColorPicker.value : fontColorSelect.value,
-          bgOpacity: parseInt(bgOpacitySlider.value, 10),
-          bgBlur: parseInt(bgBlurSlider.value, 10),
-          translateMode: translateModeSelect.value,
-          isSubtitleOverlayEnabled: enableSubtitleCheckbox.checked
-        }
-      };
-      
-      customPresets[key] = newPreset;
-      chrome.storage.local.set({ customPresets: customPresets }, () => {
-        populateCustomPresetsUI();
-        applyPreset(key);
+      showCustomModal({
+        type: 'prompt',
+        message: chrome.i18n.getMessage("promptPresetName") || "Masukkan nama preset baru:"
+      }, (name) => {
+        if (!name || !name.trim()) return;
+        
+        const key = 'custom_' + Date.now();
+        const newPreset = {
+          key: key,
+          name: name.trim(),
+          icon: '⭐',
+          settings: {
+            subtitleTheme: subtitleThemeSelect.value,
+            fontColor: fontColorSelect.value === 'custom' ? customColorPicker.value : fontColorSelect.value,
+            bgOpacity: parseInt(bgOpacitySlider.value, 10),
+            bgBlur: parseInt(bgBlurSlider.value, 10),
+            translateMode: translateModeSelect.value,
+            isSubtitleOverlayEnabled: enableSubtitleCheckbox.checked
+          }
+        };
+        
+        customPresets[key] = newPreset;
+        chrome.storage.local.set({ customPresets: customPresets }, () => {
+          populateCustomPresetsUI();
+          applyPreset(key);
+        });
       });
     });
   }
@@ -257,13 +314,18 @@ document.addEventListener('DOMContentLoaded', () => {
     deletePresetBtn.addEventListener('click', () => {
       const key = presetDropdown.value;
       if (key && customPresets[key]) {
-        if (confirm(`Hapus preset "${customPresets[key].name}"?`)) {
-          delete customPresets[key];
-          chrome.storage.local.set({ customPresets: customPresets }, () => {
-            populateCustomPresetsUI();
-            markAsCustomPreset();
-          });
-        }
+        showCustomModal({
+          type: 'confirm',
+          message: `Hapus preset "${customPresets[key].name}"?`
+        }, (confirmed) => {
+          if (confirmed) {
+            delete customPresets[key];
+            chrome.storage.local.set({ customPresets: customPresets }, () => {
+              populateCustomPresetsUI();
+              markAsCustomPreset();
+            });
+          }
+        });
       }
     });
   }
