@@ -16,8 +16,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const PRESETS = (typeof window !== 'undefined' && window.ImmerseTL_Common) ? window.ImmerseTL_Common.PRESETS : {};
 
   // Quick Presets Elements
-  const presetButtons = document.querySelectorAll('.preset-btn');
-  const activePresetBadge = document.getElementById('activePresetBadge');
+  const presetDropdown = document.getElementById('presetDropdown');
+  const myPresetsGroup = document.getElementById('myPresetsGroup');
+  const savePresetBtn = document.getElementById('savePresetBtn');
+  const deletePresetBtn = document.getElementById('deletePresetBtn');
+  let customPresets = {};
 
   // Numeric Controls & Sliders
   const fontSizeSlider = document.getElementById('fontSize');
@@ -101,26 +104,28 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (e) {}
   }
 
+  // Helper: Populate custom presets in dropdown
+  function populateCustomPresetsUI() {
+    if (!myPresetsGroup) return;
+    myPresetsGroup.innerHTML = '';
+    for (const [key, preset] of Object.entries(customPresets)) {
+      const option = document.createElement('option');
+      option.value = key;
+      option.textContent = `⭐ ${preset.name}`;
+      myPresetsGroup.appendChild(option);
+    }
+  }
+
   // Helper: Update Preset UI Active State
   function updatePresetUI(presetKey) {
-    presetButtons.forEach(btn => {
-      if (btn.getAttribute('data-preset') === presetKey) {
-        btn.classList.add('active');
+    if (presetDropdown) {
+      presetDropdown.value = presetKey || 'custom';
+    }
+    if (deletePresetBtn) {
+      if (presetKey && presetKey !== 'custom' && customPresets[presetKey]) {
+        deletePresetBtn.style.display = 'block';
       } else {
-        btn.classList.remove('active');
-      }
-    });
-
-    if (activePresetBadge) {
-      if (presetKey && PRESETS && PRESETS[presetKey]) {
-        const p = PRESETS[presetKey];
-        activePresetBadge.textContent = `${p.icon} ${p.name}`;
-        activePresetBadge.style.color = '#ff5555';
-        activePresetBadge.style.borderColor = 'rgba(255, 51, 51, 0.4)';
-      } else {
-        activePresetBadge.textContent = 'Custom ⚙️';
-        activePresetBadge.style.color = '#9ba1a6';
-        activePresetBadge.style.borderColor = 'rgba(255, 255, 255, 0.15)';
+        deletePresetBtn.style.display = 'none';
       }
     }
   }
@@ -134,8 +139,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Apply full preset batch in 1 single payload
   function applyPreset(presetKey) {
-    if (!PRESETS || !PRESETS[presetKey]) return;
-    const preset = PRESETS[presetKey];
+    let preset = (PRESETS && PRESETS[presetKey]) ? PRESETS[presetKey] : null;
+    if (!preset && customPresets && customPresets[presetKey]) {
+      preset = customPresets[presetKey];
+    }
+    if (!preset) return;
     
     // Copy settings so we can safely remove fontSize
     const s = Object.assign({}, preset.settings);
@@ -182,46 +190,83 @@ document.addEventListener('DOMContentLoaded', () => {
         activePreset: 'custom'
       };
 
-  chrome.storage.local.get(defaultState, (rawItems) => {
-    const items = (typeof window !== 'undefined' && window.ImmerseTL_Common && typeof window.ImmerseTL_Common.validateSettings === 'function')
-      ? window.ImmerseTL_Common.validateSettings(rawItems)
-      : rawItems;
+  // Load initial settings
+  chrome.storage.local.get(window.ImmerseTL_Common.DEFAULT_SETTINGS, (items) => {
+    customPresets = items.customPresets || {};
+    populateCustomPresetsUI();
 
-    // Subtitle Enabled Toggle
-    if (enableSubtitleCheckbox) enableSubtitleCheckbox.checked = items.isSubtitleOverlayEnabled !== undefined ? items.isSubtitleOverlayEnabled : true;
-
-    // Font Size
     if (fontSizeSlider) fontSizeSlider.value = items.fontSize;
     if (fontSizeInput) fontSizeInput.value = items.fontSize;
 
-    // Background Opacity
     if (bgOpacitySlider) bgOpacitySlider.value = items.bgOpacity;
     if (bgOpacityInput) bgOpacityInput.value = items.bgOpacity;
 
-    // Blur
     if (bgBlurSlider) bgBlurSlider.value = items.bgBlur;
     if (bgBlurInput) bgBlurInput.value = items.bgBlur;
 
-    // Color & Theme
-    setColorState(items.fontColor);
     if (subtitleThemeSelect) subtitleThemeSelect.value = items.subtitleTheme;
-    updateThemePreview(items.subtitleTheme, items.fontColor);
-
-    // Toggles & Modes
-    if (showHistoryCheckbox) showHistoryCheckbox.checked = items.showHistory;
+    setColorState(items.fontColor);
+    
     if (translateModeSelect) translateModeSelect.value = items.translateMode;
+    if (enableSubtitleCheckbox) enableSubtitleCheckbox.checked = items.isSubtitleOverlayEnabled;
+    if (showHistoryCheckbox) showHistoryCheckbox.checked = items.showHistory;
 
-    // Preset state
-    updatePresetUI(items.activePreset || 'custom');
+    updateThemePreview(items.subtitleTheme, items.fontColor);
+    updatePresetUI(items.activePreset);
   });
 
-  // --- PRESET BUTTONS LISTENERS ---
-  presetButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const presetKey = btn.getAttribute('data-preset');
-      applyPreset(presetKey);
+  // Attach event listeners for preset logic
+  if (presetDropdown) {
+    presetDropdown.addEventListener('change', (e) => {
+      const presetKey = e.target.value;
+      if (presetKey !== 'custom') {
+        applyPreset(presetKey);
+      }
     });
-  });
+  }
+
+  if (savePresetBtn) {
+    savePresetBtn.addEventListener('click', () => {
+      const name = prompt(chrome.i18n.getMessage("promptPresetName") || "Masukkan nama preset baru:");
+      if (!name || !name.trim()) return;
+      
+      const key = 'custom_' + Date.now();
+      const newPreset = {
+        key: key,
+        name: name.trim(),
+        icon: '⭐',
+        settings: {
+          subtitleTheme: subtitleThemeSelect.value,
+          fontColor: fontColorSelect.value === 'custom' ? customColorPicker.value : fontColorSelect.value,
+          bgOpacity: parseInt(bgOpacitySlider.value, 10),
+          bgBlur: parseInt(bgBlurSlider.value, 10),
+          translateMode: translateModeSelect.value,
+          isSubtitleOverlayEnabled: enableSubtitleCheckbox.checked
+        }
+      };
+      
+      customPresets[key] = newPreset;
+      chrome.storage.local.set({ customPresets: customPresets }, () => {
+        populateCustomPresetsUI();
+        applyPreset(key);
+      });
+    });
+  }
+
+  if (deletePresetBtn) {
+    deletePresetBtn.addEventListener('click', () => {
+      const key = presetDropdown.value;
+      if (key && customPresets[key]) {
+        if (confirm(`Hapus preset "${customPresets[key].name}"?`)) {
+          delete customPresets[key];
+          chrome.storage.local.set({ customPresets: customPresets }, () => {
+            populateCustomPresetsUI();
+            markAsCustomPreset();
+          });
+        }
+      }
+    });
+  }
 
   // --- BIDIRECTIONAL CONTROLS SYNC ---
 

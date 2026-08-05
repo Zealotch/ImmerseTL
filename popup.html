@@ -616,35 +616,25 @@
     <div class="setting-header">
       <span data-i18n="lblQuickPresets">⚡ Quick Presets (1-Klik)</span>
     </div>
-    <div class="presets-grid" id="presetsGrid">
-      <button class="preset-btn" data-preset="cinema">
-        <span class="preset-icon">🎬</span>
-        <span class="preset-name">Cinema</span>
-      </button>
-      <button class="preset-btn" data-preset="comicHeist">
-        <span class="preset-icon">🎭</span>
-        <span class="preset-name">Comic Heist</span>
-      </button>
-      <button class="preset-btn" data-preset="focusLearning">
-        <span class="preset-icon">🎓</span>
-        <span class="preset-name">Focus Learn</span>
-      </button>
-      <button class="preset-btn" data-preset="neonCity">
-        <span class="preset-icon">🌆</span>
-        <span class="preset-name">Neon City</span>
-      </button>
-      <button class="preset-btn" data-preset="minimal">
-        <span class="preset-icon">🪟</span>
-        <span class="preset-name">Minimal Glass</span>
-      </button>
-      <button class="preset-btn" data-preset="accessibility">
-        <span class="preset-icon">👁️</span>
-        <span class="preset-name">Accessibility</span>
-      </button>
-    </div>
-    <div class="preset-status-bar">
-      <span data-i18n="lblCurrentPreset">Profil Aktif:</span>
-      <span id="activePresetBadge" class="preset-badge">Custom</span>
+    <div class="preset-controls" style="display: flex; gap: 8px; margin-top: 8px;">
+      <div class="select-wrapper" style="flex: 1;">
+        <select id="presetDropdown">
+          <optgroup label="Default Presets" id="defaultPresetsGroup">
+            <option value="cinema">🎬 Cinema</option>
+            <option value="comicHeist">🎭 Comic Heist</option>
+            <option value="focusLearning">🎓 Focus Learn</option>
+            <option value="neonCity">🌆 Neon City</option>
+            <option value="minimal">🪟 Minimal Glass</option>
+            <option value="accessibility">👁️ Accessibility</option>
+          </optgroup>
+          <optgroup label="My Presets" id="myPresetsGroup">
+            <!-- Custom presets injected here -->
+          </optgroup>
+          <option value="custom" hidden disabled>⚙️ Custom</option>
+        </select>
+      </div>
+      <button id="savePresetBtn" class="btn-icon" title="Save current settings as new preset" style="background: rgba(40, 40, 45, 0.9); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 0 12px; color: white; cursor: pointer; transition: 0.2s;">➕</button>
+      <button id="deletePresetBtn" class="btn-icon" title="Delete selected preset" style="background: rgba(255, 50, 50, 0.2); border: 1px solid rgba(255, 50, 50, 0.4); border-radius: 8px; padding: 0 12px; color: #ff5555; cursor: pointer; display: none; transition: 0.2s;">🗑️</button>
     </div>
   </div>
 
