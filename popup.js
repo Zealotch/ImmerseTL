@@ -136,12 +136,14 @@ document.addEventListener('DOMContentLoaded', () => {
   function applyPreset(presetKey) {
     if (!PRESETS || !PRESETS[presetKey]) return;
     const preset = PRESETS[presetKey];
-    const s = preset.settings;
+    
+    // Copy settings so we can safely remove fontSize
+    const s = Object.assign({}, preset.settings);
+    
+    // User requested font size to be preserved across theme/preset changes
+    delete s.fontSize;
 
     // 1. Update UI controls simultaneously without triggering manual change hooks
-    if (fontSizeSlider) fontSizeSlider.value = s.fontSize;
-    if (fontSizeInput) fontSizeInput.value = s.fontSize;
-
     if (bgOpacitySlider) bgOpacitySlider.value = s.bgOpacity;
     if (bgOpacityInput) bgOpacityInput.value = s.bgOpacity;
 
