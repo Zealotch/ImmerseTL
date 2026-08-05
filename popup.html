@@ -262,14 +262,16 @@
     
     .select-wrapper {
       position: relative;
+      flex: 1;
+      min-width: 0;
     }
     
     select {
       width: 100%;
-      padding: 8px 10px;
-      background: rgba(0, 0, 0, 0.3);
+      padding: 8px 24px 8px 10px;
+      background: rgba(0, 0, 0, 0.4);
       color: #fff;
-      border: 1px solid rgba(255,255,255,0.1);
+      border: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: 6px;
       font-family: inherit;
       font-size: 12px;
@@ -282,24 +284,88 @@
     
     select:focus {
       border-color: #ff3333;
-      box-shadow: 0 0 6px rgba(255, 51, 51, 0.25);
+      box-shadow: 0 0 6px rgba(255, 51, 51, 0.3);
+    }
+
+    optgroup {
+      background-color: #141419;
+      color: #ff5555;
+      font-weight: 700;
+      font-size: 11px;
+      letter-spacing: 0.5px;
+      padding: 4px 6px;
     }
 
     option {
       background-color: #1e1e24;
       color: #fff;
       font-weight: 500;
+      padding: 4px 8px;
     }
 
     .select-wrapper::after {
       content: "▾";
       font-size: 11px;
-      color: #888;
+      color: #ff5555;
       position: absolute;
       right: 10px;
       top: 50%;
       transform: translateY(-50%);
       pointer-events: none;
+    }
+
+    /* Preset Action Buttons */
+    .preset-controls {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 6px;
+      width: 100%;
+    }
+
+    .btn-preset-action {
+      width: 32px !important;
+      height: 32px !important;
+      padding: 0 !important;
+      flex-shrink: 0 !important;
+      flex-grow: 0 !important;
+      display: inline-flex !important;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+      border: 1px solid rgba(255, 51, 51, 0.35);
+      background: rgba(255, 51, 51, 0.12);
+      color: #ff5555;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    .btn-preset-action:hover {
+      background: rgba(255, 51, 51, 0.28);
+      border-color: rgba(255, 51, 51, 0.7);
+      color: #ffffff;
+      transform: translateY(-1px);
+      box-shadow: 0 0 10px rgba(255, 51, 51, 0.4);
+    }
+
+    .btn-preset-action:active {
+      transform: translateY(0);
+    }
+
+    .btn-preset-delete {
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      background: rgba(239, 68, 68, 0.12);
+      color: #ef4444;
+    }
+
+    .btn-preset-delete:hover {
+      background: rgba(239, 68, 68, 0.3);
+      border-color: rgba(239, 68, 68, 0.8);
+      color: #ffffff;
+      transform: translateY(-1px);
+      box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
     }
     
     /* Custom Toggle Switch */
@@ -616,10 +682,10 @@
     <div class="setting-header">
       <span data-i18n="lblQuickPresets">⚡ Quick Presets (1-Klik)</span>
     </div>
-    <div class="preset-controls" style="display: flex; gap: 8px; margin-top: 8px;">
-      <div class="select-wrapper" style="flex: 1;">
+    <div class="preset-controls">
+      <div class="select-wrapper">
         <select id="presetDropdown">
-          <optgroup label="Default Presets" id="defaultPresetsGroup">
+          <optgroup label="⚡ Default Presets" id="defaultPresetsGroup">
             <option value="cinema">🎬 Cinema</option>
             <option value="comicHeist">🎭 Comic Heist</option>
             <option value="focusLearning">🎓 Focus Learn</option>
@@ -627,14 +693,14 @@
             <option value="minimal">🪟 Minimal Glass</option>
             <option value="accessibility">👁️ Accessibility</option>
           </optgroup>
-          <optgroup label="My Presets" id="myPresetsGroup">
+          <optgroup label="⭐ My Presets" id="myPresetsGroup">
             <!-- Custom presets injected here -->
           </optgroup>
           <option value="custom" hidden disabled>⚙️ Custom</option>
         </select>
       </div>
-      <button id="savePresetBtn" class="btn-icon" title="Save current settings as new preset" style="background: rgba(40, 40, 45, 0.9); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 0 12px; color: white; cursor: pointer; transition: 0.2s;">➕</button>
-      <button id="deletePresetBtn" class="btn-icon" title="Delete selected preset" style="background: rgba(255, 50, 50, 0.2); border: 1px solid rgba(255, 50, 50, 0.4); border-radius: 8px; padding: 0 12px; color: #ff5555; cursor: pointer; display: none; transition: 0.2s;">🗑️</button>
+      <button id="savePresetBtn" class="btn-preset-action" title="Simpan pengaturan saat ini sebagai preset baru">➕</button>
+      <button id="deletePresetBtn" class="btn-preset-action btn-preset-delete" title="Hapus preset ini" style="display: none;">🗑️</button>
     </div>
   </div>
 

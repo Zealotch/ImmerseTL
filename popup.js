@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (deletePresetBtn) {
       if (presetKey && presetKey !== 'custom' && customPresets[presetKey]) {
-        deletePresetBtn.style.display = 'block';
+        deletePresetBtn.style.display = 'inline-flex';
       } else {
         deletePresetBtn.style.display = 'none';
       }
