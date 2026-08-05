@@ -19,8 +19,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const presetDropdown = document.getElementById('presetDropdown');
   const myPresetsGroup = document.getElementById('myPresetsGroup');
   const savePresetBtn = document.getElementById('savePresetBtn');
+  const renamePresetBtn = document.getElementById('renamePresetBtn');
   const deletePresetBtn = document.getElementById('deletePresetBtn');
   let customPresets = {};
+
+  const PRESET_ICONS = ['🔥', '✨', '💎', '🚀', '🔮', '🧩', '⚡', '🌙', '🌊', '🎨', '🌟', '❄️'];
 
   // Numeric Controls & Sliders
   const fontSizeSlider = document.getElementById('fontSize');
@@ -111,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
     for (const [key, preset] of Object.entries(customPresets)) {
       const option = document.createElement('option');
       option.value = key;
-      option.textContent = `⭐ ${preset.name}`;
+      option.textContent = `${preset.icon || '⭐'} ${preset.name}`;
       myPresetsGroup.appendChild(option);
     }
   }
@@ -121,11 +124,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (presetDropdown) {
       presetDropdown.value = presetKey || 'custom';
     }
-    if (deletePresetBtn) {
+    if (deletePresetBtn && renamePresetBtn) {
       if (presetKey && presetKey !== 'custom' && customPresets[presetKey]) {
         deletePresetBtn.style.display = 'inline-flex';
+        renamePresetBtn.style.display = 'inline-flex';
       } else {
         deletePresetBtn.style.display = 'none';
+        renamePresetBtn.style.display = 'none';
       }
     }
   }
@@ -287,10 +292,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!name || !name.trim()) return;
         
         const key = 'custom_' + Date.now();
+        const randomIcon = PRESET_ICONS[Math.floor(Math.random() * PRESET_ICONS.length)];
         const newPreset = {
           key: key,
           name: name.trim(),
-          icon: '⭐',
+          icon: randomIcon,
           settings: {
             subtitleTheme: subtitleThemeSelect.value,
             fontColor: fontColorSelect.value === 'custom' ? customColorPicker.value : fontColorSelect.value,
@@ -307,6 +313,27 @@ document.addEventListener('DOMContentLoaded', () => {
           applyPreset(key);
         });
       });
+    });
+  }
+
+  if (renamePresetBtn) {
+    renamePresetBtn.addEventListener('click', () => {
+      const key = presetDropdown.value;
+      if (key && customPresets[key]) {
+        showCustomModal({
+          type: 'prompt',
+          message: "Ubah nama preset ini:",
+          defaultValue: customPresets[key].name
+        }, (newName) => {
+          if (newName && newName.trim()) {
+            customPresets[key].name = newName.trim();
+            chrome.storage.local.set({ customPresets: customPresets }, () => {
+              populateCustomPresetsUI();
+              updatePresetUI(key);
+            });
+          }
+        });
+      }
     });
   }
 
