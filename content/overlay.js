@@ -553,30 +553,28 @@ window.ImmerseTL = window.ImmerseTL || {};
     }
 
     // 2. Debounce the translation fetch (400ms)
-    if (ITL.translator && !cachedTrans) {
-      if (ITL.translator.debounceTimer) clearTimeout(ITL.translator.debounceTimer);
-      ITL.translator.currentRequestText = displayText;
-      
-      ITL.translator.debounceTimer = setTimeout(async () => {
-        if (displayText !== ITL.translator.currentRequestText) return;
-        
-        let transData = await ITL.translator.fetchTranslation(displayText, targetLang);
-        if (!transData) {
+    if (ITL.translationTrigger && !cachedTrans) {
+      ITL.translationTrigger.scheduleTranslation({
+        text: displayText,
+        targetLang: targetLang,
+        delay: 400,
+        onResult: (transData) => {
+          if (text !== currentText) return;
+          
+          currentTextElement.innerHTML = renderTransData(transData);
+          if (isNewCue) { triggerCueAnimation(); if (ITL.settings && ITL.settings.typewriterEffect) applyTypewriterEffect(currentTextElement); }
+          
+          currentTextElement.style.opacity = '1';
+          currentTextElement.style.transform = 'translateY(0)';
+          
+          if (ITL.history) ITL.history.update(displayText, transData);
+        },
+        onError: () => {
           if (text === currentText) {
             currentTextElement.innerHTML = renderFinalSubtitle(renderModeInitial('default', safeRaw, '<span style="color:#ff6b6b; font-size:0.8em;">[Koneksi Terjemahan Gagal/Limit]</span>'), displayText);
           }
-          return;
         }
-        if (text !== currentText) return;
-
-        currentTextElement.innerHTML = renderTransData(transData);
-        if (isNewCue) { triggerCueAnimation(); if (ITL.settings && ITL.settings.typewriterEffect) applyTypewriterEffect(currentTextElement); }
-        
-        currentTextElement.style.opacity = '1';
-        currentTextElement.style.transform = 'translateY(0)';
-        
-        if (ITL.history) ITL.history.update(displayText, transData);
-      }, 400);
+      });
     }
   }
 

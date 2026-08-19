@@ -12,6 +12,10 @@ window.ImmerseTL = window.ImmerseTL || {};
     }
 
     // 2. Clear translation debounce & queue
+    if (ITL.translationTrigger && typeof ITL.translationTrigger.cancelPendingTranslation === 'function') {
+      ITL.translationTrigger.cancelPendingTranslation();
+    }
+    // Also clear translator fallback
     if (ITL.translator && typeof ITL.translator.clearDebounce === 'function') {
       ITL.translator.clearDebounce();
     }
