@@ -15,10 +15,7 @@ window.ImmerseTL = window.ImmerseTL || {};
     if (ITL.translationTrigger && typeof ITL.translationTrigger.cancelPendingTranslation === 'function') {
       ITL.translationTrigger.cancelPendingTranslation();
     }
-    // Also clear translator fallback
-    if (ITL.translator && typeof ITL.translator.clearDebounce === 'function') {
-      ITL.translator.clearDebounce();
-    }
+
 
     // 3. Clear subtitle overlay DOM & fade-out timeouts
     if (ITL.overlay && typeof ITL.overlay.clear === 'function') {

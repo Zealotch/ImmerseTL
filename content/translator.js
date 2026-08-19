@@ -4,8 +4,6 @@ window.ImmerseTL = window.ImmerseTL || {};
 
 (function (ITL) {
   const translationCache = new Map();
-  let translationDebounceTimer = null;
-  let currentTranslationRequestText = "";
 
   function getCachedTranslation(text, targetLang) {
     if (!text.trim()) return null;
@@ -136,22 +134,9 @@ window.ImmerseTL = window.ImmerseTL || {};
     return safe;
   }
 
-  function clearDebounce() {
-    if (translationDebounceTimer) {
-      clearTimeout(translationDebounceTimer);
-      translationDebounceTimer = null;
-    }
-    currentTranslationRequestText = "";
-  }
-
   ITL.translator = {
     getCachedTranslation: getCachedTranslation,
     fetchTranslation: fetchTranslation,
-    highlightSafeText: highlightSafeText,
-    clearDebounce: clearDebounce,
-    get debounceTimer() { return translationDebounceTimer; },
-    set debounceTimer(t) { translationDebounceTimer = t; },
-    get currentRequestText() { return currentTranslationRequestText; },
-    set currentRequestText(t) { currentTranslationRequestText = t; }
+    highlightSafeText: highlightSafeText
   };
 })(window.ImmerseTL);
