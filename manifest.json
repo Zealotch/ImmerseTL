@@ -27,6 +27,7 @@
         "content/translator.js",
         "content/translation-trigger.js",
         "content/caption-processor.js",
+        "content/theme-renderer.js",
         "content/overlay.js",
         "content/caption-source.js",
         "content/content.js"
