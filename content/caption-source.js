@@ -35,11 +35,16 @@ window.ImmerseTL = window.ImmerseTL || {};
           ITL.overlay.updateCustomSubtitle(initialText);
         }
 
+        let lastExtractedText = "";
+
         const obs = new MutationObserver(() => {
           const compStyle = getComputedStyle(targetNode);
           if (targetNode.offsetWidth === 0 || targetNode.offsetHeight === 0 || compStyle.display === 'none' || compStyle.visibility === 'hidden' || compStyle.opacity === '0') {
-            if (ITL.overlay && typeof ITL.overlay.clear === 'function') {
-              ITL.overlay.clear();
+            if (lastExtractedText !== "") {
+              lastExtractedText = "";
+              if (ITL.overlay && typeof ITL.overlay.clear === 'function') {
+                ITL.overlay.clear();
+              }
             }
             return;
           }
@@ -59,13 +64,19 @@ window.ImmerseTL = window.ImmerseTL || {};
           }
 
           if (fullText && fullText.trim() && !isHidden) {
-            if (ITL.overlay && typeof ITL.overlay.updateCustomSubtitle === 'function') {
-              ITL.overlay.updateCustomSubtitle(fullText);
+            if (fullText !== lastExtractedText) {
+              lastExtractedText = fullText;
+              if (ITL.overlay && typeof ITL.overlay.updateCustomSubtitle === 'function') {
+                ITL.overlay.updateCustomSubtitle(fullText);
+              }
             }
           } else {
             // When CC is disabled or empty, clear the custom subtitle overlay
-            if (ITL.overlay && typeof ITL.overlay.clear === 'function') {
-              ITL.overlay.clear();
+            if (lastExtractedText !== "") {
+              lastExtractedText = "";
+              if (ITL.overlay && typeof ITL.overlay.clear === 'function') {
+                ITL.overlay.clear();
+              }
             }
           }
         });
