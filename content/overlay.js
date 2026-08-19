@@ -416,16 +416,12 @@ window.ImmerseTL = window.ImmerseTL || {};
       }
     }
 
-    // 2. Dynamic Debounce the translation fetch
-    // Use 400ms for completely new sentences so it's snappy,
-    // but use 1000ms for streaming updates (typing out a sentence) to avoid API request storms (429 Rate Limit)
+    // 2. Debounce the translation fetch (400ms)
     if (ITL.translationTrigger && !cachedTrans) {
-      const fetchDelay = isNewCue ? 400 : 1000;
-      
       ITL.translationTrigger.scheduleTranslation({
         text: displayText,
         targetLang: targetLang,
-        delay: fetchDelay,
+        delay: 400,
         onResult: (transData) => {
           if (text !== currentText) return;
           
