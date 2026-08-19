@@ -6,6 +6,10 @@ const path = require('path');
 
 test('caption-source.js Extraction Helper', async (t) => {
   const browser = await puppeteer.launch({ headless: true });
+  t.after(async () => {
+    await browser.close();
+  });
+  
   const page = await browser.newPage();
   
   // Inject the script
@@ -106,5 +110,78 @@ test('caption-source.js Extraction Helper', async (t) => {
     assert.strictEqual(extractedText, 'INITIAL_STATE');
   });
 
-  await browser.close();
+  await t.test('LIFECYCLE CASE 1 & 2: Temporary hidden state and caption returns', async () => {
+    const results = await page.evaluate(async () => {
+      const log = [];
+      document.getElementById('test-container').innerHTML = `
+        <video></video>
+        <div class="ytp-caption-window-container" id="cap-win">
+          <div class="caption-visual-line">
+            <span class="ytp-caption-segment">First</span>
+          </div>
+        </div>
+      `;
+      window.ImmerseTL.overlay = {
+        updateCustomSubtitle: (t) => { log.push('UPDATE: ' + t); },
+        clear: () => { log.push('CLEAR'); },
+        currentTextElement: { style: { opacity: '1' } }
+      };
+      
+      window.ImmerseTL.captionSource.checkObserver();
+      
+      // Wait for observer to pick up the initial state
+      await new Promise(r => setTimeout(r, 50));
+      
+      // Mutate to hidden state
+      const capWin = document.getElementById('cap-win');
+      capWin.style.display = 'none';
+      
+      await new Promise(r => setTimeout(r, 100));
+      // 100ms is < 400ms, so it should NOT be cleared yet!
+      
+      // Mutate back to visible
+      capWin.style.display = 'block';
+      
+      await new Promise(r => setTimeout(r, 500));
+      // 500ms > 400ms, but we canceled the timer, so still no clear!
+      
+      window.ImmerseTL.captionSource.cleanup();
+      return log;
+    });
+    
+    assert.deepStrictEqual(results, ['UPDATE: First']);
+  });
+
+  await t.test('LIFECYCLE CASE 3: Genuine caption end', async () => {
+    const results = await page.evaluate(async () => {
+      const log = [];
+      document.getElementById('test-container').innerHTML = `
+        <video></video>
+        <div class="ytp-caption-window-container" id="cap-win">
+          <div class="caption-visual-line">
+            <span class="ytp-caption-segment">End me</span>
+          </div>
+        </div>
+      `;
+      window.ImmerseTL.overlay = {
+        updateCustomSubtitle: (t) => { log.push('UPDATE: ' + t); },
+        clear: () => { log.push('CLEAR'); },
+        currentTextElement: { style: { opacity: '1' } }
+      };
+      
+      window.ImmerseTL.captionSource.checkObserver();
+      await new Promise(r => setTimeout(r, 50));
+      
+      const capWin = document.getElementById('cap-win');
+      capWin.style.display = 'none';
+      
+      // Wait > 400ms (grace) + 400ms (ghost)
+      await new Promise(r => setTimeout(r, 1000));
+      
+      window.ImmerseTL.captionSource.cleanup();
+      return log;
+    });
+    
+    assert.deepStrictEqual(results, ['UPDATE: End me', 'CLEAR']);
+  });
 });
