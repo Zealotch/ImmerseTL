@@ -7,6 +7,22 @@ window.ImmerseTL = window.ImmerseTL || {};
   let isObserverHooked = false;
   let observerIntervalId = null;
 
+  function extractCaptionText(targetNode) {
+    let segments = Array.from(targetNode.querySelectorAll('.ytp-caption-segment, .caption-visual-line'));
+    if (segments.length === 0) {
+      segments = Array.from(targetNode.querySelectorAll('span'));
+    }
+    
+    const leafSegments = segments.filter(seg => {
+      return !segments.some(other => other !== seg && seg.contains(other));
+    });
+
+    if (leafSegments.length > 0) {
+      return leafSegments.map(seg => seg.textContent).join(' ');
+    }
+    return targetNode.textContent || "";
+  }
+
   function checkObserver() {
     if (!document.querySelector('video')) return;
 
@@ -21,15 +37,7 @@ window.ImmerseTL = window.ImmerseTL || {};
           ITL.overlay.updateVisibility();
         }
         
-        let initialSegments = targetNode.querySelectorAll('.ytp-caption-segment, .caption-visual-line');
-        if (initialSegments.length === 0) initialSegments = targetNode.querySelectorAll('span');
-        
-        let initialText = "";
-        if (initialSegments.length > 0) {
-          initialText = Array.from(initialSegments).map(seg => seg.textContent).join(' ');
-        } else {
-          initialText = targetNode.textContent;
-        }
+        let initialText = extractCaptionText(targetNode);
         
         if (initialText && initialText.trim() && ITL.overlay && typeof ITL.overlay.updateCustomSubtitle === 'function') {
           ITL.overlay.updateCustomSubtitle(initialText);
@@ -53,15 +61,7 @@ window.ImmerseTL = window.ImmerseTL || {};
           const cwStyle = captionWindow ? getComputedStyle(captionWindow) : null;
           const isHidden = cwStyle && (cwStyle.display === 'none' || cwStyle.visibility === 'hidden' || cwStyle.opacity === '0');
           
-          let segments = targetNode.querySelectorAll('.ytp-caption-segment, .caption-visual-line');
-          if (segments.length === 0) segments = targetNode.querySelectorAll('span');
-          
-          let fullText = "";
-          if (segments.length > 0) {
-            fullText = Array.from(segments).map(seg => seg.textContent).join(' ');
-          } else {
-            fullText = targetNode.textContent;
-          }
+          let fullText = extractCaptionText(targetNode);
 
           if (fullText && fullText.trim() && !isHidden) {
             if (fullText !== lastExtractedText) {
@@ -97,15 +97,7 @@ window.ImmerseTL = window.ImmerseTL || {};
         const cwStyle = captionWindow ? getComputedStyle(captionWindow) : null;
         const isHidden = cwStyle && (cwStyle.display === 'none' || cwStyle.visibility === 'hidden' || cwStyle.opacity === '0');
         
-        let segments = targetNode.querySelectorAll('.ytp-caption-segment, .caption-visual-line');
-        if (segments.length === 0) segments = targetNode.querySelectorAll('span');
-        
-        let fullText = "";
-        if (segments.length > 0) {
-          fullText = Array.from(segments).map(seg => seg.textContent).join(' ');
-        } else {
-          fullText = targetNode.textContent;
-        }
+        let fullText = extractCaptionText(targetNode);
         
         if (fullText && fullText.trim() && !isHidden) {
           anyVisible = true;
