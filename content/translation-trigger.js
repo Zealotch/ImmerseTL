@@ -9,12 +9,14 @@ window.ImmerseTL = window.ImmerseTL || {};
   let debounceTimer = null;
   let currentRequestText = "";
   let currentRequestGeneration = 0;
+  let currentDebounceGeneration = 0;
 
   function cancelPendingTranslation() {
     if (debounceTimer) {
       clearTimeout(debounceTimer);
       debounceTimer = null;
     }
+    currentDebounceGeneration++;
     currentRequestGeneration++;
     currentRequestText = "";
   }
@@ -24,25 +26,31 @@ window.ImmerseTL = window.ImmerseTL || {};
   }
 
   function scheduleTranslation(params) {
-    const { text, targetLang, delay = 400, onResult, onError } = params;
+    const { text, delay = 400, onResult, onError } = params;
     
     cancelPendingTranslation();
     
     if (!text || !text.trim()) return;
 
     currentRequestText = text;
-    const reqGen = currentRequestGeneration;
+    currentDebounceGeneration++;
+    const debGen = currentDebounceGeneration;
     
     debounceTimer = setTimeout(async () => {
-      // Check if the request identity changed during the debounce window
-      if (reqGen !== currentRequestGeneration) {
+      // Check if the debounce was superseded
+      if (debGen !== currentDebounceGeneration) {
         return;
       }
+      
+      // Debounce completed, prepare actual network request
+      currentRequestGeneration++;
+      const reqGen = currentRequestGeneration;
+      const activeTargetLang = (ITL.settings && ITL.settings.targetLang) ? ITL.settings.targetLang : params.targetLang;
       
       try {
         let transData = null;
         if (ITL.translator && typeof ITL.translator.fetchTranslation === 'function') {
-          transData = await ITL.translator.fetchTranslation(text, targetLang);
+          transData = await ITL.translator.fetchTranslation(text, activeTargetLang);
         }
         
         // Check if the request identity changed while we were waiting for the network

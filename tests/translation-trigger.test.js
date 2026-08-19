@@ -7,11 +7,13 @@ window.ImmerseTL = {};
 require('../content/translation-trigger.js');
 const { scheduleTranslation, cancelPendingTranslation, invalidateCurrentRequest } = window.ImmerseTL.translationTrigger;
 
-test('translation-trigger.js Orchestration (Invalidation)', async (t) => {
+test('translation-trigger.js Orchestration (Fix B.2 Validation)', async (t) => {
   let networkHandlers = [];
+  let fetchedLangs = [];
   
   window.ImmerseTL.translator = {
     fetchTranslation: async (text, targetLang) => {
+      fetchedLangs.push(targetLang);
       return new Promise(resolve => {
         networkHandlers.push({ text, targetLang, resolve });
       });
@@ -20,111 +22,143 @@ test('translation-trigger.js Orchestration (Invalidation)', async (t) => {
 
   t.beforeEach(() => {
     networkHandlers = [];
+    fetchedLangs = [];
+    window.ImmerseTL.settings = { targetLang: 'id' };
     cancelPendingTranslation();
   });
 
-  await t.test('CASE 1: Target language changes while request is in-flight', async () => {
+  await t.test('CASE A & C: Target changes during debounce, then request succeeds', async () => {
     return new Promise((done) => {
       let results = [];
-      scheduleTranslation({ text: 'Hello', targetLang: 'id', delay: 10, onResult: (res) => results.push('A') });
+      scheduleTranslation({ text: 'Hello', targetLang: 'id', delay: 20, onResult: (res) => results.push('A') });
 
+      // Inside debounce window
       setTimeout(() => {
-        assert.strictEqual(networkHandlers.length, 1);
+        assert.strictEqual(networkHandlers.length, 0, 'Should still be debouncing');
         
-        // Target language changed via popup -> triggers settings.js -> triggers invalidate
+        // Settings change
+        window.ImmerseTL.settings.targetLang = 'ja';
         invalidateCurrentRequest();
+      }, 10);
+      
+      // Wait for debounce to finish and network request to be sent
+      setTimeout(() => {
+        assert.strictEqual(networkHandlers.length, 1, 'Exactly ONE translation request should be sent');
+        assert.strictEqual(fetchedLangs[0], 'ja', 'The request should use the fresh target language (ja)');
         
         networkHandlers[0].resolve({ translation: 'A_translated' });
         
         setTimeout(() => {
-          assert.deepStrictEqual(results, [], 'A should be discarded');
+          assert.deepStrictEqual(results, ['A'], 'Result should be accepted');
           done();
-        }, 20);
-      }, 20);
+        }, 10);
+      }, 40);
     });
   });
 
-  await t.test('CASE 2: Target language changes, then NEW request starts', async () => {
+  await t.test('CASE B: Old in-flight response is still rejected', async () => {
+    return new Promise((done) => {
+      let results = [];
+      scheduleTranslation({ text: 'Hello', targetLang: 'id', delay: 0, onResult: (res) => results.push('A') });
+
+      // Wait for network request to be sent
+      setTimeout(() => {
+        assert.strictEqual(networkHandlers.length, 1, 'Request is in flight');
+        
+        // Target changes WHILE IN FLIGHT
+        window.ImmerseTL.settings.targetLang = 'ja';
+        invalidateCurrentRequest();
+        
+        // Resolve the in-flight promise
+        networkHandlers[0].resolve({ translation: 'A_translated' });
+        
+        setTimeout(() => {
+          assert.deepStrictEqual(results, [], 'Old in-flight response should be discarded');
+          done();
+        }, 10);
+      }, 10);
+    });
+  });
+
+  await t.test('CASE D: Multiple target changes during debounce', async () => {
+    return new Promise((done) => {
+      let results = [];
+      scheduleTranslation({ text: 'Hello', targetLang: 'id', delay: 30, onResult: (res) => results.push('A') });
+
+      setTimeout(() => {
+        window.ImmerseTL.settings.targetLang = 'ja'; invalidateCurrentRequest();
+        window.ImmerseTL.settings.targetLang = 'en'; invalidateCurrentRequest();
+        window.ImmerseTL.settings.targetLang = 'ko'; invalidateCurrentRequest();
+      }, 10);
+      
+      setTimeout(() => {
+        assert.strictEqual(networkHandlers.length, 1, 'Exactly ONE translation request should be sent');
+        assert.strictEqual(fetchedLangs[0], 'ko', 'The request should use the final fresh target language (ko)');
+        
+        networkHandlers[0].resolve({ translation: 'A_translated' });
+        setTimeout(() => {
+          assert.deepStrictEqual(results, ['A'], 'Result should be accepted');
+          done();
+        }, 10);
+      }, 50);
+    });
+  });
+
+  await t.test('CASE E: Normal request unchanged', async () => {
     return new Promise((done) => {
       let results = [];
       scheduleTranslation({ text: 'Hello', targetLang: 'id', delay: 10, onResult: (res) => results.push('A') });
 
       setTimeout(() => {
         assert.strictEqual(networkHandlers.length, 1);
+        assert.strictEqual(fetchedLangs[0], 'id');
         
-        invalidateCurrentRequest();
-        
-        // Subtitle arrives
-        scheduleTranslation({ text: 'Hello', targetLang: 'ja', delay: 10, onResult: (res) => results.push('B') });
-        
+        networkHandlers[0].resolve({ translation: 'A_translated' });
         setTimeout(() => {
-          assert.strictEqual(networkHandlers.length, 2);
-          
-          networkHandlers[0].resolve({ translation: 'A_translated' });
-          setTimeout(() => {
-            assert.deepStrictEqual(results, [], 'A should be discarded');
-            
-            networkHandlers[1].resolve({ translation: 'B_translated' });
-            setTimeout(() => {
-              assert.deepStrictEqual(results, ['B'], 'B should be accepted');
-              done();
-            }, 20);
-          }, 20);
-        }, 20);
+          assert.deepStrictEqual(results, ['A'], 'Result should be accepted');
+          done();
+        }, 10);
       }, 20);
     });
   });
 
-  await t.test('CASE 3: Navigation still invalidates request (via cancelPendingTranslation)', async () => {
+  await t.test('CASE F: Navigation during debounce', async () => {
     return new Promise((done) => {
       let results = [];
-      scheduleTranslation({ text: 'Hello', targetLang: 'id', delay: 10, onResult: (res) => results.push('A') });
+      scheduleTranslation({ text: 'Hello', targetLang: 'id', delay: 20, onResult: (res) => results.push('A') });
 
       setTimeout(() => {
         cancelPendingTranslation();
-        networkHandlers[0].resolve({ translation: 'A_translated' });
-        
-        setTimeout(() => {
-          assert.deepStrictEqual(results, [], 'A should be discarded');
-          done();
-        }, 20);
-      }, 20);
+      }, 10);
+      
+      setTimeout(() => {
+        assert.strictEqual(networkHandlers.length, 0, 'No request should start');
+        assert.deepStrictEqual(results, []);
+        done();
+      }, 40);
     });
   });
 
-  await t.test('CASE 4: Normal translation remains valid', async () => {
+  await t.test('CASE G: New request after invalidation', async () => {
     return new Promise((done) => {
       let results = [];
-      scheduleTranslation({ text: 'Hello', targetLang: 'id', delay: 10, onResult: (res) => results.push('A') });
-
+      
+      // Invalidate current state randomly
+      window.ImmerseTL.settings.targetLang = 'ja';
+      invalidateCurrentRequest();
+      
+      // New subtitle arrives
+      scheduleTranslation({ text: 'Hello', targetLang: 'ja', delay: 0, onResult: (res) => results.push('A') });
+      
       setTimeout(() => {
+        assert.strictEqual(networkHandlers.length, 1);
         networkHandlers[0].resolve({ translation: 'A_translated' });
         
         setTimeout(() => {
-          assert.deepStrictEqual(results, ['A'], 'A should be accepted normally');
+          assert.deepStrictEqual(results, ['A'], 'New request gets valid generation and accepted');
           done();
-        }, 20);
-      }, 20);
-    });
-  });
-
-  await t.test('CASE 5: Repeated target language changes', async () => {
-    return new Promise((done) => {
-      let results = [];
-      scheduleTranslation({ text: 'Hello', targetLang: 'id', delay: 10, onResult: (res) => results.push('A') });
-
-      setTimeout(() => {
-        invalidateCurrentRequest(); // id -> ja
-        invalidateCurrentRequest(); // ja -> en
-        invalidateCurrentRequest(); // en -> ko
-        
-        networkHandlers[0].resolve({ translation: 'A_translated' });
-        
-        setTimeout(() => {
-          assert.deepStrictEqual(results, [], 'A should be discarded');
-          done();
-        }, 20);
-      }, 20);
+        }, 10);
+      }, 10);
     });
   });
 });
