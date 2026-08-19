@@ -11,23 +11,51 @@ window.ImmerseTL = window.ImmerseTL || {};
     return translationCache.get(cacheKey) || null;
   }
 
+  let globalRequestCount = 0;
+
   async function fetchTranslation(text, targetLang) {
     if (!text.trim()) return null;
     const cacheKey = `${targetLang}:${text}`;
-    if (translationCache.has(cacheKey)) return translationCache.get(cacheKey);
+    
+    globalRequestCount++;
+    const reqId = globalRequestCount;
+    const timestamp = Date.now();
+    
+    if (translationCache.has(cacheKey)) {
+      console.log(`[ImmerseTL-DEBUG] CACHE HIT - reqId: ${reqId}, textLen: ${text.length}`);
+      return translationCache.get(cacheKey);
+    }
+
+    console.log(`[ImmerseTL-DEBUG] CACHE MISS - reqId: ${reqId}, textLen: ${text.length}`);
+    console.log(`[ImmerseTL-DEBUG] Translation request START - reqId: ${reqId}, target: ${targetLang}, ts: ${timestamp}`);
 
     return new Promise((resolve) => {
       try {
         let isResolved = false;
-        const fallbackTimeout = setTimeout(() => { if (!isResolved) { console.error('[ImmerseTL] sendMessage timeout'); isResolved = true; resolve(null); } }, 6000);
+        const fallbackTimeout = setTimeout(() => { 
+          if (!isResolved) { 
+            console.error(`[ImmerseTL-DEBUG] sendMessage 6000ms timeout - reqId: ${reqId}`); 
+            isResolved = true; 
+            resolve(null); 
+          } 
+        }, 6000);
+        
+        if (!chrome.runtime || !chrome.runtime.sendMessage) {
+          throw new Error("Extension context invalidated");
+        }
+
         chrome.runtime.sendMessage(
           { action: 'fetchTranslation', text: text, targetLang: targetLang },
           (response) => {
             if (isResolved) return;
             isResolved = true;
             clearTimeout(fallbackTimeout);
+            
+            const finishTs = Date.now();
+            console.log(`[ImmerseTL-DEBUG] Translation request FINISH - reqId: ${reqId}, duration: ${finishTs - timestamp}ms`);
+            
             if (chrome.runtime.lastError || !response || !response.success) {
-              console.error("[ImmerseTL] Proxy API Translation Error:", chrome.runtime.lastError || response?.error);
+              console.error(`[ImmerseTL-DEBUG] Proxy API Translation Error - reqId: ${reqId}, msg: ${chrome.runtime.lastError?.message || response?.error}`);
               resolve(null);
               return;
             }
@@ -38,12 +66,23 @@ window.ImmerseTL = window.ImmerseTL || {};
               const firstKey = translationCache.keys().next().value;
               translationCache.delete(firstKey);
             }
+            // Note: We only cache SUCCESSFUL responses
             translationCache.set(cacheKey, result);
             resolve(result);
           }
         );
       } catch (e) {
-        console.warn("[ImmerseTL] Extension context invalidated or message failed. Please refresh the page.", e);
+        if (e.message && e.message.includes("Extension context invalidated")) {
+           console.warn(`[ImmerseTL] Extension context disconnected. Shutting down UI to prevent error flood. Please refresh the page.`);
+           if (ITL.captionSource && typeof ITL.captionSource.cleanup === 'function') {
+             ITL.captionSource.cleanup();
+           }
+           if (ITL.overlay && typeof ITL.overlay.clear === 'function') {
+             ITL.overlay.clear();
+           }
+        } else {
+           console.warn(`[ImmerseTL-DEBUG] Error in fetchTranslation - reqId: ${reqId}`, e);
+        }
         resolve(null);
       }
     });
