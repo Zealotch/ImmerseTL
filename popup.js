@@ -40,12 +40,21 @@ document.addEventListener('DOMContentLoaded', () => {
   const customColorPicker = document.getElementById('customColorPicker');
   const colorPreviewDot = document.getElementById('colorPreviewDot');
   const subtitleThemeSelect = document.getElementById('subtitleTheme');
+  const animationLevelSelect = document.getElementById('animationLevel');
   const themePreview = document.getElementById('themePreview');
 
   // Modes & Toggles
   const enableSubtitleCheckbox = document.getElementById('enableSubtitle');
-  const translateModeSelect = document.getElementById('translateMode');
+  const useNativeTranslationCheckbox = document.getElementById('useNativeTranslation');
+  const langRoutingRulesList = document.getElementById('langRoutingRulesList');
+  const addRoutingRuleBtn = document.getElementById('addRoutingRuleBtn');
   const showHistoryCheckbox = document.getElementById('showHistory');
+  const isFreeFloatingCheckbox = document.getElementById('isFreeFloating');
+  const wordGlowEnabledCheckbox = document.getElementById('wordGlowEnabled');
+  const autoEmojiEnabledCheckbox = document.getElementById('autoEmojiEnabled');
+  const typewriterEffectCheckbox = document.getElementById('typewriterEffect');
+  const emotionDetectionCheckbox = document.getElementById('emotionDetection');
+  const mangaSfxEnabledCheckbox = document.getElementById('mangaSfxEnabled');
   const openShortcutsBtn = document.getElementById('openShortcutsBtn');
   const resetPosBtn = document.getElementById('resetPosBtn');
 
@@ -166,7 +175,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (subtitleThemeSelect) subtitleThemeSelect.value = s.subtitleTheme;
     setColorState(s.fontColor);
 
-    if (translateModeSelect) translateModeSelect.value = s.translateMode;
     if (enableSubtitleCheckbox) enableSubtitleCheckbox.checked = s.isSubtitleOverlayEnabled;
 
     updateThemePreview(s.subtitleTheme, s.fontColor);
@@ -190,7 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
         bgBlur: 8,
         fontColor: '#ffffff',
         showHistory: false,
-        translateMode: 'default',
+        isFreeFloating: false,
         subtitleTheme: 'default',
         activePreset: 'custom'
       };
@@ -210,11 +218,20 @@ document.addEventListener('DOMContentLoaded', () => {
     if (bgBlurInput) bgBlurInput.value = items.bgBlur;
 
     if (subtitleThemeSelect) subtitleThemeSelect.value = items.subtitleTheme;
+    if (animationLevelSelect) animationLevelSelect.value = items.animationLevel || 'full';
+    if (document.getElementById('target-lang')) document.getElementById('target-lang').value = items.targetLang || 'id';
+    if (document.getElementById('translate-mode')) document.getElementById('translate-mode').value = items.translateMode || 'default';
     setColorState(items.fontColor);
     
-    if (translateModeSelect) translateModeSelect.value = items.translateMode;
     if (enableSubtitleCheckbox) enableSubtitleCheckbox.checked = items.isSubtitleOverlayEnabled;
+    if (useNativeTranslationCheckbox) useNativeTranslationCheckbox.checked = items.useNativeTranslation === true;
     if (showHistoryCheckbox) showHistoryCheckbox.checked = items.showHistory;
+    if (isFreeFloatingCheckbox) isFreeFloatingCheckbox.checked = items.isFreeFloating === true;
+    if (wordGlowEnabledCheckbox) wordGlowEnabledCheckbox.checked = items.wordGlowEnabled !== false;
+    if (autoEmojiEnabledCheckbox) autoEmojiEnabledCheckbox.checked = items.autoEmojiEnabled === true;
+    if (typewriterEffectCheckbox) typewriterEffectCheckbox.checked = items.typewriterEffect === true;
+    if (emotionDetectionCheckbox) emotionDetectionCheckbox.checked = items.emotionDetection === true;
+    if (mangaSfxEnabledCheckbox) mangaSfxEnabledCheckbox.checked = items.mangaSfxEnabled === true;
 
     updateThemePreview(items.subtitleTheme, items.fontColor);
     updatePresetUI(items.activePreset);
@@ -230,7 +247,23 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- CUSTOM MODAL UI LOGIC ---
+  if (emotionDetectionCheckbox) {
+    emotionDetectionCheckbox.addEventListener('change', (e) => {
+      const checked = e.target.checked;
+      chrome.storage.local.set({ emotionDetection: checked });
+      notifyActiveTab({ emotionDetection: checked });
+    });
+  }
+
+  if (mangaSfxEnabledCheckbox) {
+    mangaSfxEnabledCheckbox.addEventListener('change', (e) => {
+      const checked = e.target.checked;
+      chrome.storage.local.set({ mangaSfxEnabled: checked });
+      notifyActiveTab({ mangaSfxEnabled: checked });
+    });
+  }
+
+  // --- TAB SWITCHING LOGIC ---
   const modalOverlay = document.getElementById('customModalOverlay');
   const modalMessage = document.getElementById('modalMessage');
   const modalInput = document.getElementById('modalInput');
@@ -302,7 +335,7 @@ document.addEventListener('DOMContentLoaded', () => {
             fontColor: fontColorSelect.value === 'custom' ? customColorPicker.value : fontColorSelect.value,
             bgOpacity: parseInt(bgOpacitySlider.value, 10),
             bgBlur: parseInt(bgBlurSlider.value, 10),
-            translateMode: translateModeSelect.value,
+            animationLevel: animationLevelSelect ? animationLevelSelect.value : 'full',
             isSubtitleOverlayEnabled: enableSubtitleCheckbox.checked
           }
         };
@@ -451,7 +484,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+
+
   // --- TOGGLES & MODES ---
+  if (useNativeTranslationCheckbox) {
+    useNativeTranslationCheckbox.addEventListener('change', (e) => {
+      const checked = e.target.checked;
+      chrome.storage.local.set({ useNativeTranslation: checked });
+      notifyActiveTab({ useNativeTranslation: checked });
+    });
+  }
+
   if (enableSubtitleCheckbox) {
     enableSubtitleCheckbox.addEventListener('change', (e) => {
       const checked = e.target.checked;
@@ -468,12 +511,63 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  if (isFreeFloatingCheckbox) {
+    isFreeFloatingCheckbox.addEventListener('change', (e) => {
+      const checked = e.target.checked;
+      chrome.storage.local.set({ isFreeFloating: checked });
+      notifyActiveTab({ isFreeFloating: checked });
+    });
+  }
+
+  if (wordGlowEnabledCheckbox) {
+    wordGlowEnabledCheckbox.addEventListener('change', (e) => {
+      const checked = e.target.checked;
+      chrome.storage.local.set({ wordGlowEnabled: checked });
+      notifyActiveTab({ wordGlowEnabled: checked });
+    });
+  }
+
+  if (autoEmojiEnabledCheckbox) {
+    autoEmojiEnabledCheckbox.addEventListener('change', (e) => {
+      const checked = e.target.checked;
+      chrome.storage.local.set({ autoEmojiEnabled: checked });
+      notifyActiveTab({ autoEmojiEnabled: checked });
+    });
+  }
+
+  if (typewriterEffectCheckbox) {
+    typewriterEffectCheckbox.addEventListener('change', (e) => {
+      const checked = e.target.checked;
+      chrome.storage.local.set({ typewriterEffect: checked });
+      notifyActiveTab({ typewriterEffect: checked });
+    });
+  }
+
+  // --- GLOBAL TRANSLATION SETTINGS ---
+  const targetLangSelect = document.getElementById('target-lang');
+  const translateModeSelect = document.getElementById('translate-mode');
+
+  if (targetLangSelect) {
+    targetLangSelect.addEventListener('change', (e) => {
+      chrome.storage.local.set({ targetLang: e.target.value });
+      notifyActiveTab({ targetLang: e.target.value });
+    });
+  }
+
   if (translateModeSelect) {
     translateModeSelect.addEventListener('change', (e) => {
-      const mode = e.target.value;
-      markAsCustomPreset();
-      chrome.storage.local.set({ translateMode: mode });
-      notifyActiveTab({ translateMode: mode });
+      chrome.storage.local.set({ translateMode: e.target.value });
+      notifyActiveTab({ translateMode: e.target.value });
+    });
+  }
+
+
+
+  if (animationLevelSelect) {
+    animationLevelSelect.addEventListener('change', (e) => {
+      const lvl = e.target.value;
+      chrome.storage.local.set({ animationLevel: lvl });
+      notifyActiveTab({ animationLevel: lvl });
     });
   }
 
@@ -494,4 +588,48 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
   }
+
+  // --- TAB NAVIGATION SYSTEM ---
+  const tabButtons = document.querySelectorAll('.tab-btn');
+  const tabPanels = document.querySelectorAll('.tab-panel');
+
+  function switchTab(tabId) {
+    tabButtons.forEach(btn => {
+      if (btn.getAttribute('data-tab') === tabId) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+
+    tabPanels.forEach(panel => {
+      if (panel.id === tabId) {
+        panel.classList.add('active');
+      } else {
+        panel.classList.remove('active');
+      }
+    });
+
+    try {
+      chrome.storage.local.set({ lastActivePopupTab: tabId });
+    } catch(e) {}
+  }
+
+  tabButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetTab = btn.getAttribute('data-tab');
+      if (targetTab) switchTab(targetTab);
+    });
+  });
+
+  // Restore last active tab if remembered
+  try {
+    chrome.storage.local.get({ lastActivePopupTab: 'tab-general' }, (res) => {
+      if (res && res.lastActivePopupTab) {
+        // Fallback for old 'tab-display'
+        if (res.lastActivePopupTab === 'tab-display') res.lastActivePopupTab = 'tab-general';
+        switchTab(res.lastActivePopupTab);
+      }
+    });
+  } catch (e) {}
 });

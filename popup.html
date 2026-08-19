@@ -91,6 +91,104 @@
       border-radius: 12px;
       letter-spacing: 0.5px;
     }
+
+    /* Modern Tab Navigation Bar */
+    .tab-bar {
+      display: flex;
+      background: rgba(0, 0, 0, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 9px;
+      padding: 3px;
+      margin-bottom: 12px;
+      gap: 3px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 7px;
+      padding: 7px 4px;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: #9ba1a6;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      user-select: none;
+    }
+
+    .tab-btn:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .tab-btn.active {
+      color: #ffffff;
+      background: rgba(255, 51, 51, 0.22);
+      border: 1px solid rgba(255, 51, 51, 0.45);
+      box-shadow: 0 2px 8px rgba(255, 51, 51, 0.28);
+      font-weight: 700;
+    }
+
+    .tab-panel {
+      display: none;
+      animation: tabFadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    @keyframes tabFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(3px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Shortcut List Styles */
+    .shortcut-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .shortcut-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .shortcut-row:last-child {
+      border-bottom: none;
+    }
+
+    .shortcut-label {
+      font-size: 11.5px;
+      color: #cbd5e1;
+    }
+
+    .shortcut-key {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 10.5px;
+      font-weight: 700;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 4px;
+      padding: 2px 6px;
+      color: #ff6666;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+    }
     
     .setting-group {
       background: rgba(255, 255, 255, 0.035);
@@ -517,6 +615,24 @@
       font-weight: 700;
     }
 
+    .theme-preview-box.preview-comicHeist {
+      background: #0b0b0e !important;
+      border-top: 3px solid #ffffff !important;
+      border-bottom: 3px solid #ffffff !important;
+      border-left: none !important;
+      border-right: none !important;
+      border-radius: 0px !important;
+      box-shadow: 3px 4px 0px #000000 !important;
+      transform: skew(-2.5deg) rotate(-0.5deg);
+      position: relative;
+    }
+    .theme-preview-box.preview-comicHeist .theme-preview-text {
+      font-family: 'Palatino', 'Georgia', serif, sans-serif;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      text-shadow: 1px 1px 0px #000000;
+    }
+
     .theme-preview-box.preview-sakura {
       background: rgba(120, 40, 70, 0.55);
       border: 1px solid rgba(255, 182, 193, 0.3);
@@ -546,9 +662,28 @@
       box-shadow: none;
     }
     .theme-preview-box.preview-retro .theme-preview-text {
-      font-family: 'Courier New', monospace;
-      text-shadow: 2px 0 0 rgba(255,0,0,0.15), -2px 0 0 rgba(0,100,255,0.15);
-      letter-spacing: 0.5px;
+      font-family: 'Courier New', Courier, monospace;
+      text-shadow: 2px 0 0 #ff0000, -2px 0 0 #00ffff;
+    }
+    .theme-preview-box.preview-metaphor {
+      background-color: #0a0a0a;
+      transform: skewX(-10deg);
+      border-bottom: 2px solid white;
+      border-left: 1px solid white;
+    }
+    .theme-preview-box.preview-metaphor .theme-preview-text {
+      color: white;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+    }
+    .theme-preview-box.preview-medieval {
+      background-color: #e9dcb5;
+      border: 2px solid #8b6b4a;
+      box-shadow: inset 0 0 10px rgba(100, 70, 30, 0.4);
+    }
+    .theme-preview-box.preview-medieval .theme-preview-text {
+      font-family: 'Georgia', 'Palatino Linotype', 'Times New Roman', serif;
+      color: #2c1e16;
+      font-weight: bold;
     }
 
     .theme-preview-box.preview-nature {
@@ -770,162 +905,306 @@
     <span class="badge-ver">PRO</span>
   </div>
 
-  <!-- Quick Presets Section -->
-  <div class="setting-group" id="quickPresetsGroup">
-    <div class="setting-header">
-      <span data-i18n="lblQuickPresets">⚡ Quick Presets (1-Klik)</span>
+  <!-- Modern Tab Navigation Bar -->
+  <div class="tab-bar">
+    <button class="tab-btn active" data-tab="tab-general" id="btnTabGeneral">
+      <span data-i18n="tabGeneral">⚙️ Umum</span>
+    </button>
+    <button class="tab-btn" data-tab="tab-theme" id="btnTabTheme">
+      <span data-i18n="tabTheme">🎨 Tema</span>
+    </button>
+    <button class="tab-btn" data-tab="tab-features" id="btnTabFeatures">
+      <span data-i18n="tabFeatures">✨ Fitur</span>
+    </button>
+    <button class="tab-btn" data-tab="tab-tools" id="btnTabTools">
+      <span data-i18n="tabTools">🛠️ Pintasan</span>
+    </button>
+  </div>
+
+  <!-- TAB 1: UMUM (GENERAL) -->
+  <div id="tab-general" class="tab-panel active">
+    <!-- Font Size with Direct Numeric Input -->
+    <div class="setting-group">
+      <div class="setting-header">
+        <label for="fontSize" data-i18n="lblFontSize">Ukuran Font</label>
+        <div class="num-input-wrap">
+          <input type="number" id="fontSizeInput" class="num-input" min="10" max="64" step="1" value="28">
+          <span class="unit-badge">px</span>
+        </div>
+      </div>
+      <input type="range" id="fontSize" min="10" max="64" step="1" value="28">
     </div>
-    <div class="preset-controls">
-      <div class="select-wrapper">
-        <select id="presetDropdown">
-          <optgroup label="⚡ Default Presets" id="defaultPresetsGroup">
-            <option value="cinema">🎬 Cinema</option>
-            <option value="comicHeist">🎭 Comic Heist</option>
-            <option value="focusLearning">🎓 Focus Learn</option>
-            <option value="neonCity">🌆 Neon City</option>
-            <option value="minimal">🪟 Minimal Glass</option>
-            <option value="accessibility">👁️ Accessibility</option>
-          </optgroup>
-          <optgroup label="⭐ My Presets" id="myPresetsGroup">
-            <!-- Custom presets injected here -->
-          </optgroup>
-          <option value="custom" hidden disabled>⚙️ Custom</option>
+
+    <!-- Background Opacity with Direct Numeric Input -->
+    <div class="setting-group">
+      <div class="setting-header">
+        <label for="bgOpacity" data-i18n="lblBgOpacity">Kegelapan Background</label>
+        <div class="num-input-wrap">
+          <input type="number" id="bgOpacityInput" class="num-input" min="0" max="100" step="1" value="60">
+          <span class="unit-badge">%</span>
+        </div>
+      </div>
+      <input type="range" id="bgOpacity" min="0" max="100" step="1" value="60">
+    </div>
+
+    <!-- Glass Effect Blur with Direct Numeric Input -->
+    <div class="setting-group">
+      <div class="setting-header">
+        <label for="bgBlur" data-i18n="lblBgBlur">Efek Kaca (Blur)</label>
+        <div class="num-input-wrap">
+          <input type="number" id="bgBlurInput" class="num-input" min="0" max="30" step="1" value="8">
+          <span class="unit-badge">px</span>
+        </div>
+      </div>
+      <input type="range" id="bgBlur" min="0" max="30" step="1" value="8">
+    </div>
+
+    <!-- Target Language -->
+    <div class="setting-group">
+      <div class="setting-header">
+        <span data-i18n="lblTargetLang">🌐 Bahasa Tujuan</span>
+      </div>
+      <div class="custom-select-wrapper">
+        <select id="target-lang" class="custom-select">
+          <option value="id">🇮🇩 Indonesia (ID)</option>
+          <option value="en">🇬🇧 English (EN)</option>
+          <option value="ja">🇯🇵 Japanese (JA)</option>
+          <option value="ko">🇰🇷 Korean (KO)</option>
+          <option value="zh-CN">🇨🇳 Chinese (Simplified)</option>
         </select>
       </div>
-      <button id="savePresetBtn" class="btn-preset-action" title="Simpan pengaturan saat ini sebagai preset baru">➕</button>
-      <button id="renamePresetBtn" class="btn-preset-action" title="Ubah nama preset ini" style="display: none; border-color: rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.05); color: #e2e8f0;">✏️</button>
-      <button id="deletePresetBtn" class="btn-preset-action btn-preset-delete" title="Hapus preset ini" style="display: none;">🗑️</button>
+    </div>
+
+    <!-- Translation Mode -->
+    <div class="setting-group">
+      <div class="setting-header">
+        <span data-i18n="lblTranslateMode">🔄 Mode Tampilan</span>
+      </div>
+      <div class="custom-select-wrapper">
+        <select id="translate-mode" class="custom-select">
+          <option value="default">Hanya Terjemahan (Default)</option>
+          <option value="dual">Dual (Romaji + Terjemahan)</option>
+        </select>
+      </div>
     </div>
   </div>
 
-  <!-- Theme & Custom Color Section -->
-  <div class="setting-group" style="display: flex; flex-direction: column; gap: 8px;">
-    <div>
-      <div class="setting-header" style="margin-bottom: 4px;">
-        <label for="subtitleTheme" data-i18n="lblTheme">🎨 Tema Subtitle</label>
+  <!-- TAB 2: TEMA (THEME BUILDER) -->
+  <div id="tab-theme" class="tab-panel">
+    <!-- Quick Presets Section -->
+    <div class="setting-group" id="quickPresetsGroup">
+      <div class="setting-header">
+        <span data-i18n="lblQuickPresets">⚡ Quick Presets (1-Klik)</span>
       </div>
-      <div class="select-wrapper">
-        <select id="subtitleTheme">
-          <option value="default">🌑 Glassmorphism (Default)</option>
-          <option value="cinema">🎬 Cinema</option>
-          <option value="sakura">🌸 Sakura</option>
-          <option value="neon">🔥 Neon Glow</option>
-          <option value="retro">📺 Retro VHS</option>
-          <option value="nature">🍃 Nature</option>
-          <option value="invisible">👻 Invisible</option>
-          <option value="gaming">🎮 Gaming HUD</option>
-        </select>
-      </div>
-    </div>
-
-    <div>
-      <div class="setting-header" style="margin-bottom: 4px;">
-        <label for="fontColor" data-i18n="lblFontColor">Warna Teks Subtitle</label>
-      </div>
-      <div class="color-select-row">
+      <div class="preset-controls">
         <div class="select-wrapper">
-          <select id="fontColor">
-            <option value="#ffffff" data-i18n="colorWhite">🤍 Putih Standar</option>
-            <option value="#ffd700" data-i18n="colorYellow">💛 Kuning (Gaya Anime)</option>
-            <option value="#00ffff" data-i18n="colorCyan">💙 Cyan (Biru Muda)</option>
-            <option value="#00ff00" data-i18n="colorGreen">💚 Hijau Terang</option>
-            <option value="#ffb6c1" data-i18n="colorPink">🌸 Pink Pastel</option>
-            <option value="#ff8c00" data-i18n="colorOrange">🍊 Oranye Terang</option>
-            <option value="#dda0dd" data-i18n="colorPurple">🍇 Ungu Muda (Plum)</option>
-            <option value="#cccccc" data-i18n="colorGray">🌫️ Abu-abu Lembut</option>
-            <option value="custom" data-i18n="colorCustom">🎨 Warna Kustom...</option>
+          <select id="presetDropdown">
+            <optgroup label="⚡ Default Presets" id="defaultPresetsGroup">
+              <option value="cinema">🎬 Cinema</option>
+              <option value="comicHeist">🎭 Comic Heist</option>
+              <option value="wuwa">🌊 Wuthering Waves</option>
+              <option value="focusLearning">🎓 Focus Learn</option>
+              <option value="neonCity">🌆 Neon City</option>
+              <option value="minimal">🪟 Minimal Glass</option>
+              <option value="accessibility">👁️ Accessibility</option>
+            </optgroup>
+            <optgroup label="⭐ My Presets" id="myPresetsGroup">
+              <!-- Custom presets injected here -->
+            </optgroup>
+            <option value="custom" hidden disabled>⚙️ Custom</option>
           </select>
         </div>
-        <div class="color-picker-wrap" title="Klik untuk pilih warna custom">
-          <div id="colorPreviewDot" class="color-preview-dot"></div>
-          <input type="color" id="customColorPicker" class="color-picker-input" value="#ffffff">
+        <button id="savePresetBtn" class="btn-preset-action" title="Simpan pengaturan saat ini sebagai preset baru">➕</button>
+        <button id="renamePresetBtn" class="btn-preset-action" title="Ubah nama preset ini" style="display: none; border-color: rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.05); color: #e2e8f0;">✏️</button>
+        <button id="deletePresetBtn" class="btn-preset-action btn-preset-delete" title="Hapus preset ini" style="display: none;">🗑️</button>
+      </div>
+    </div>
+
+    <!-- Theme & Custom Color Section -->
+    <div class="setting-group" style="display: flex; flex-direction: column; gap: 8px;">
+      <div>
+        <div class="setting-header" style="margin-bottom: 4px;">
+          <label for="subtitleTheme" data-i18n="lblTheme">🎨 Tema Subtitle</label>
+        </div>
+        <div class="select-wrapper">
+          <select id="subtitleTheme">
+            <option value="default" data-i18n="themeDefault">Standar (Kotak Hitam Transparan)</option>
+            <option value="comicHeist">🎭 Comic Heist (Persona 5)</option>
+            <option value="wuwa">⚔️ Wuthering Waves (Clean & Sharp)</option>
+            <option value="metaphor">👑 Metaphor: ReFantazio (Asymmetric)</option>
+            <option value="medieval">📜 Fantasy Scroll (Medieval)</option>
+            <option value="cinema">🎬 Cinema</option>
+            <option value="neon">🔥 Neon Glow</option>
+            <option value="retro">📺 Retro VHS</option>
+            <option value="gaming">🎮 Gaming HUD</option>
+            <option value="sakura">🌸 Sakura</option>
+            <option value="nature">🍃 Nature</option>
+            <option value="invisible">👻 Invisible</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <div class="setting-header" style="margin-bottom: 4px;">
+          <label for="fontColor" data-i18n="lblFontColor">Warna Teks Subtitle</label>
+        </div>
+        <div class="color-select-row">
+          <div class="select-wrapper">
+            <select id="fontColor">
+              <option value="#ffffff" data-i18n="colorWhite">🤍 Putih Standar</option>
+              <option value="#ffd700" data-i18n="colorYellow">💛 Kuning (Gaya Anime)</option>
+              <option value="#00ffff" data-i18n="colorCyan">💙 Cyan (Biru Muda)</option>
+              <option value="#00ff00" data-i18n="colorGreen">💚 Hijau Terang</option>
+              <option value="#ffb6c1" data-i18n="colorPink">🌸 Pink Pastel</option>
+              <option value="#ff8c00" data-i18n="colorOrange">🍊 Oranye Terang</option>
+              <option value="#dda0dd" data-i18n="colorPurple">🍇 Ungu Muda (Plum)</option>
+              <option value="#cccccc" data-i18n="colorGray">🌫️ Abu-abu Lembut</option>
+              <option value="custom" data-i18n="colorCustom">🎨 Warna Kustom...</option>
+            </select>
+          </div>
+          <div class="color-picker-wrap" title="Klik untuk pilih warna custom">
+            <div id="colorPreviewDot" class="color-preview-dot"></div>
+            <input type="color" id="customColorPicker" class="color-picker-input" value="#ffffff">
+          </div>
+        </div>
+      </div>
+
+      <div id="themePreview" class="theme-preview-box">
+        <span class="theme-preview-text">Sample subtitle text 字幕サンプル</span>
+      </div>
+    </div>
+
+    <!-- Animation Intensity Control -->
+    <div class="setting-group">
+      <div class="setting-header" style="margin-bottom: -2px;">
+        <label for="animationLevel" data-i18n="lblAnimationLevel">✨ Animasi Subtitle</label>
+      </div>
+      <div class="select-wrapper">
+        <select id="animationLevel">
+          <option value="full" data-i18n="animFull">⚡ Penuh (Pop & Wiggle / Glitch)</option>
+          <option value="slide-up">🚀 Cinematic Slide (Visual Novel)</option>
+          <option value="expand">🌀 Sci-Fi Expand (Cyberpunk/Holo)</option>
+          <option value="slice">🎭 Dynamic Slice (Action/Persona)</option>
+          <option value="bounce">🎈 Playful Bounce (Anime/Casual)</option>
+          <option value="burn">🔥 Burn-In (Cinematic/Horror)</option>
+          <option value="ripple">💧 Ripple (Liquid Drop)</option>
+          <option value="flip">🌀 3D Flip (Action/Dynamic)</option>
+          <option value="subtle" data-i18n="animSubtle">🍃 Halus (Fade Lembut)</option>
+          <option value="off" data-i18n="animOff">⛔ Mati (Tanpa Animasi)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3: MODES & BEHAVIOR (FEATURES) -->
+  <div id="tab-features" class="tab-panel">
+
+    <!-- Toggles -->
+    <div class="setting-group toggle-container">
+      <label for="enableSubtitle" data-i18n="lblEnableSubtitle">Aktifkan Subtitle Kustom</label>
+      <label class="toggle-switch">
+        <input type="checkbox" id="enableSubtitle">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="setting-group toggle-container" style="border-color: rgba(255,51,51,0.3); background: rgba(255,51,51,0.05);">
+      <label for="useNativeTranslation" data-i18n="lblUseNative" style="color: #ff8888;">⚡ Bypass Google (Instan)</label>
+      <label class="toggle-switch">
+        <input type="checkbox" id="useNativeTranslation">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+
+    <div class="setting-group toggle-container">
+      <label for="showHistory" data-i18n="lblShowHistory">📋 Tampilkan Riwayat Subtitle (History)</label>
+      <label class="toggle-switch">
+        <input type="checkbox" id="showHistory">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="setting-group toggle-container">
+      <label for="wordGlowEnabled" data-i18n="lblWordGlow">✨ Auto Word Glow & Karaoke</label>
+      <label class="toggle-switch">
+        <input type="checkbox" id="wordGlowEnabled">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="setting-group toggle-container">
+      <label for="autoEmojiEnabled" data-i18n="lblAutoEmoji">Auto Emoji (CapCut Style)</label>
+      <label class="toggle-switch">
+        <input type="checkbox" id="autoEmojiEnabled">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="setting-group toggle-container">
+      <label for="typewriterEffect" data-i18n="lblTypewriter">⌨️ Efek Mengetik RPG (Typewriter)</label>
+      <label class="toggle-switch">
+        <input type="checkbox" id="typewriterEffect">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="setting-group toggle-container">
+      <label for="emotionDetection" data-i18n="lblEmotion">🎭 Teks Berekspresi Otomatis</label>
+      <label class="toggle-switch">
+        <input type="checkbox" id="emotionDetection">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="setting-group toggle-container">
+      <label for="mangaSfxEnabled">💥 Manga-style SFX</label>
+      <label class="toggle-switch">
+        <input type="checkbox" id="mangaSfxEnabled">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="setting-group toggle-container">
+      <label for="isFreeFloating" data-i18n="lblFreeFloating">Free-Floating Mode (Bebas Bergerak)</label>
+      <label class="toggle-switch">
+        <input type="checkbox" id="isFreeFloating">
+        <span class="slider"></span>
+      </label>
+    </div>
+  </div>
+
+  <!-- TAB 3: TOOLS & SHORTCUTS -->
+  <div id="tab-tools" class="tab-panel">
+    <div class="setting-group">
+      <div class="setting-header">
+        <span>⌨️ Pintasan Cepat</span>
+      </div>
+      <div class="shortcut-list">
+        <div class="shortcut-row">
+          <span class="shortcut-label">Toggle Subtitle</span>
+          <kbd class="shortcut-key">Alt + S</kbd>
+        </div>
+        <div class="shortcut-row">
+          <span class="shortcut-label">Toggle History Log</span>
+          <kbd class="shortcut-key">Alt + H</kbd>
+        </div>
+        <div class="shortcut-row">
+          <span class="shortcut-label">Reset Posisi Drag</span>
+          <kbd class="shortcut-key">Alt + R</kbd>
         </div>
       </div>
     </div>
 
-    <div id="themePreview" class="theme-preview-box">
-      <span class="theme-preview-text">Sample subtitle text 字幕サンプル</span>
+    <div class="btn-group" style="margin-top: 10px;">
+      <button id="openShortcutsBtn" data-i18n="btnShortcuts">
+        ⚙️ Ubah Tombol Shortcut
+      </button>
+
+      <button id="resetPosBtn" data-i18n="btnResetPos">
+        🔄 Reset Posisi Subtitle
+      </button>
     </div>
-  </div>
-
-  <!-- Font Size with Direct Numeric Input -->
-  <div class="setting-group">
-    <div class="setting-header">
-      <label for="fontSize" data-i18n="lblFontSize">Ukuran Font</label>
-      <div class="num-input-wrap">
-        <input type="number" id="fontSizeInput" class="num-input" min="10" max="64" step="1" value="28">
-        <span class="unit-badge">px</span>
-      </div>
-    </div>
-    <input type="range" id="fontSize" min="10" max="64" step="1" value="28">
-  </div>
-
-  <!-- Background Opacity with Direct Numeric Input -->
-  <div class="setting-group">
-    <div class="setting-header">
-      <label for="bgOpacity" data-i18n="lblBgOpacity">Kegelapan Background</label>
-      <div class="num-input-wrap">
-        <input type="number" id="bgOpacityInput" class="num-input" min="0" max="100" step="1" value="60">
-        <span class="unit-badge">%</span>
-      </div>
-    </div>
-    <input type="range" id="bgOpacity" min="0" max="100" step="1" value="60">
-  </div>
-
-  <!-- Operation Mode -->
-  <div class="setting-group">
-    <div class="setting-header" style="margin-bottom: -2px;">
-      <label for="translateMode" data-i18n="lblTranslateMode">Mode Operasi</label>
-    </div>
-    <div class="select-wrapper">
-      <select id="translateMode">
-        <option value="default" data-i18n="modeDefault">📺 Buffer Biasa (Bawaan YT)</option>
-        <option value="dual_en" data-i18n="modeDualEn">🇯🇵 Dual Sub: Romaji + Inggris</option>
-        <option value="dual_id" data-i18n="modeDualId">🇯🇵 Dual Sub: Romaji + Indonesia</option>
-      </select>
-    </div>
-  </div>
-
-  <!-- Glass Effect Blur with Direct Numeric Input -->
-  <div class="setting-group">
-    <div class="setting-header">
-      <label for="bgBlur" data-i18n="lblBgBlur">Efek Kaca (Blur)</label>
-      <div class="num-input-wrap">
-        <input type="number" id="bgBlurInput" class="num-input" min="0" max="30" step="1" value="8">
-        <span class="unit-badge">px</span>
-      </div>
-    </div>
-    <input type="range" id="bgBlur" min="0" max="30" step="1" value="8">
-  </div>
-
-  <!-- Toggles -->
-  <div class="setting-group toggle-container">
-    <label for="enableSubtitle" data-i18n="lblEnableSubtitle">Aktifkan Subtitle Kustom</label>
-    <label class="toggle-switch">
-      <input type="checkbox" id="enableSubtitle" checked>
-      <span class="slider"></span>
-    </label>
-  </div>
-
-  <div class="setting-group toggle-container">
-    <label for="showHistory" data-i18n="lblShowHistory">Tampilkan Chat History Log</label>
-    <label class="toggle-switch">
-      <input type="checkbox" id="showHistory">
-      <span class="slider"></span>
-    </label>
-  </div>
-
-
-
-  <!-- Actions -->
-  <div class="btn-group">
-    <button id="openShortcutsBtn" data-i18n="btnShortcuts">
-      ⚙️ Ubah Tombol Shortcut
-    </button>
-
-    <button id="resetPosBtn" data-i18n="btnResetPos">
-      🔄 Reset Posisi Subtitle
-    </button>
   </div>
 
   <!-- Custom Modal Dialogs -->

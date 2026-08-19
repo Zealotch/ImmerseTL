@@ -1,47 +1,152 @@
 {
-  "extName": { "message": "ImmerseTL" },
-  "extDesc": { "message": "Fixes YouTube's flickering auto-translate captions by buffering them in a custom UI." },
-  "cmdToggleHistory": { "message": "Toggle Chat History Log" },
-  "cmdToggleSubtitle": { "message": "Toggle Subtitle Visibility" },
-  
-  "uiTitle": { "message": "ImmerseTL" },
-  "uiSubtitle": { "message": "Advanced Subtitle Control Panel" },
-  
-  "lblFontSize": { "message": "Font Size" },
-  "lblBgOpacity": { "message": "Background Opacity" },
-  "lblBgBlur": { "message": "Glass Effect (Blur)" },
-  
-  "lblTranslateMode": { "message": "Operation Mode" },
-  "modeDefault": { "message": "📺 Default Buffer (YT Native)" },
-  "modeDualEn": { "message": "🇯🇵 Dual Sub: Romaji + English" },
-  "modeDualId": { "message": "🇯🇵 Dual Sub: Romaji + Indonesian" },
-  
-  "lblFontColor": { "message": "Subtitle Text Color" },
-  "colorWhite": { "message": "🤍 Standard White" },
-  "colorYellow": { "message": "💛 Anime Yellow" },
-  "colorCyan": { "message": "💙 Light Cyan" },
-  "colorGreen": { "message": "💚 Bright Green" },
-  "colorPink": { "message": "🌸 Pastel Pink" },
-  "colorOrange": { "message": "🍊 Bright Orange" },
-  "colorPurple": { "message": "🍇 Light Plum" },
-  "colorGray": { "message": "🌫️ Soft Gray" },
-  "colorCustom": { "message": "🎨 Custom Color..." },
-  
-  "lblEnableSubtitle": { "message": "Enable Custom Subtitles" },
-  "lblShowHistory": { "message": "Show Chat History Log" },
-  
-  "btnShortcuts": { "message": "⚙️ Edit Shortcuts" },
-  "btnResetPos": { "message": "🔄 Reset Subtitle Position" },
-  "btnResetPosDone": { "message": "Position Reset!" },
-  
-  "errServerBusy": { "message": "⏳ Translation Server Busy..." },
-  "logTitle": { "message": "History Log" },
-  "logEmpty": { "message": "Waiting for video subtitles..." },
-  
-  "lblQuickPresets": { "message": "⚡ Quick Presets (1-Click)" },
-  "lblCurrentPreset": { "message": "Active Profile:" },
-  "btnHistoryClear": { "message": "Clear History" },
-  "btnHistoryMin": { "message": "Minimize" },
-  "btnHistoryExp": { "message": "Expand" },
-  "btnHistoryClose": { "message": "Close" }
+  "extName": {
+    "message": "ImmerseTL"
+  },
+  "extDesc": {
+    "message": "Fixes YouTube's flickering auto-translate captions by buffering them in a custom UI."
+  },
+  "cmdToggleHistory": {
+    "message": "Toggle Chat History Log"
+  },
+  "cmdToggleSubtitle": {
+    "message": "Toggle Subtitle Visibility"
+  },
+  "uiTitle": {
+    "message": "ImmerseTL"
+  },
+  "uiSubtitle": {
+    "message": "Advanced Subtitle Control Panel"
+  },
+  "tabDisplay": {
+    "message": "🎨 Style"
+  },
+  "tabFeatures": {
+    "message": "⚙️ Modes"
+  },
+  "tabTools": {
+    "message": "🛠️ Tools"
+  },
+  "lblFontSize": {
+    "message": "Font Size"
+  },
+  "lblBgOpacity": {
+    "message": "Background Opacity"
+  },
+  "lblBgBlur": {
+    "message": "Glass Effect (Blur)"
+  },
+  "lblTheme": {
+    "message": "Subtitle Theme & Style"
+  },
+  "lblTranslateMode": {
+    "message": "Operation Mode"
+  },
+  "modeDefault": {
+    "message": "📺 Default Buffer (YT Native)"
+  },
+  "modeDualEn": {
+    "message": "🇯🇵 Dual Sub: Romaji + English"
+  },
+  "modeDualId": {
+    "message": "🇯🇵 Dual Sub: Romaji + Indonesian"
+  },
+  "lblFreeFloating": {
+    "message": "Free-Floating Mode (Draggable anywhere)"
+  },
+  "lblFontColor": {
+    "message": "Subtitle Text Color"
+  },
+  "colorWhite": {
+    "message": "🤍 Standard White"
+  },
+  "colorYellow": {
+    "message": "💛 Anime Yellow"
+  },
+  "colorCyan": {
+    "message": "💙 Light Cyan"
+  },
+  "colorGreen": {
+    "message": "💚 Bright Green"
+  },
+  "colorPink": {
+    "message": "🌸 Pastel Pink"
+  },
+  "colorOrange": {
+    "message": "🍊 Bright Orange"
+  },
+  "colorPurple": {
+    "message": "🍇 Light Plum"
+  },
+  "colorGray": {
+    "message": "🌫️ Soft Gray"
+  },
+  "colorCustom": {
+    "message": "🎨 Custom Color..."
+  },
+  "lblEnableSubtitle": {
+    "message": "Enable Custom Subtitles"
+  },
+  "lblShowHistory": {
+    "message": "Show Chat History Log"
+  },
+  "lblWordGlow": {
+    "message": "✨ Auto Word Glow & Karaoke"
+  },
+  "btnShortcuts": {
+    "message": "⚙️ Edit Shortcuts"
+  },
+  "btnResetPos": {
+    "message": "🔄 Reset Subtitle Position"
+  },
+  "btnResetPosDone": {
+    "message": "Position Reset!"
+  },
+  "errServerBusy": {
+    "message": "⏳ Translation Server Busy..."
+  },
+  "logTitle": {
+    "message": "History Log"
+  },
+  "logEmpty": {
+    "message": "Waiting for video subtitles..."
+  },
+  "lblQuickPresets": {
+    "message": "⚡ Quick Presets (1-Click)"
+  },
+  "lblCurrentPreset": {
+    "message": "Active Profile:"
+  },
+  "lblAnimationLevel": {
+    "message": "✨ Subtitle Animation"
+  },
+  "animFull": {
+    "message": "⚡ Full (Pop & Wiggle / Glitch)"
+  },
+  "animSubtle": {
+    "message": "🍃 Subtle (Soft Fade)"
+  },
+  "animOff": {
+    "message": "⛔ Off (Instant)"
+  },
+  "btnHistoryClear": {
+    "message": "Clear History"
+  },
+  "btnHistoryMin": {
+    "message": "Minimize"
+  },
+  "btnHistoryExp": {
+    "message": "Expand"
+  },
+  "btnHistoryClose": {
+    "message": "Close"
+  },
+  "lblP5Avatar": {
+    "message": "🎭 Persona 5 Character"
+  },
+  "lblP5Speaker": {
+    "message": "Speaker Name (Optional Override)"
+  },
+  "lblAutoEmoji": {
+    "message": "Auto Emoji (CapCut Style)"
+  }
 }

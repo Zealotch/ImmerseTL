@@ -4,19 +4,41 @@ window.ImmerseTL = window.ImmerseTL || {};
 
 (function (ITL) {
   let subtitleHistory = [];
-  const MAX_HISTORY = 25;
+  const MAX_HISTORY = 3000;
   let historyOverlay = null;
   let historyContent = null;
   let isHistoryMinimized = false;
 
+  function getTargetContainer() {
+    const isFree = ITL.settings ? (ITL.settings.isFreeFloating === true) : false;
+    return isFree ? document.body : (document.querySelector('.html5-video-player') || document.querySelector('#movie_player') || document.body);
+  }
+
+  function updatePositioningMode() {
+    if (historyOverlay) {
+      const container = getTargetContainer();
+      if (historyOverlay.parentElement !== container) {
+        container.appendChild(historyOverlay);
+      }
+      const isFree = ITL.settings ? (ITL.settings.isFreeFloating === true) : false;
+      historyOverlay.style.position = isFree ? 'fixed' : 'absolute';
+    }
+  }
+
   function ensureHistoryOverlay(targetContainer) {
-    let container = targetContainer || document.querySelector('.html5-video-player') || document.querySelector('#movie_player');
+    let container = targetContainer || getTargetContainer();
     if (!container) return null;
 
     let existing = document.getElementById('yt-smart-translate-history');
     if (existing) {
       historyOverlay = existing;
       historyContent = document.getElementById('yt-history-content');
+      
+      if (historyOverlay.parentElement !== container) {
+         container.appendChild(historyOverlay);
+      }
+
+      updatePositioningMode();
       return historyOverlay;
     }
 
@@ -36,6 +58,8 @@ window.ImmerseTL = window.ImmerseTL || {};
     historyOverlay.style.display = (ITL.settings && ITL.settings.showHistory) ? 'flex' : 'none';
     historyOverlay.style.setProperty('--drag-x', (ITL.settings ? ITL.settings.historyDragX : 0) + 'px');
     historyOverlay.style.setProperty('--drag-y', (ITL.settings ? ITL.settings.historyDragY : 0) + 'px');
+    
+    updatePositioningMode();
 
     // Header Container
     const headerContainer = document.createElement('div');
@@ -77,6 +101,25 @@ window.ImmerseTL = window.ImmerseTL || {};
       e.stopPropagation();
       subtitleHistory = [];
       renderHistory();
+    };
+
+    // Export Button
+    const exportBtn = document.createElement('button');
+    exportBtn.className = 'yt-history-btn yt-history-export-btn';
+    exportBtn.textContent = '💾';
+    exportBtn.title = 'Export History to JSON';
+    exportBtn.onclick = (e) => {
+      e.stopPropagation();
+      if (subtitleHistory.length === 0) return;
+      const blob = new Blob([JSON.stringify(subtitleHistory, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `ImmerseTL_History_${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     };
 
     // Minimize/Expand Button
@@ -122,6 +165,7 @@ window.ImmerseTL = window.ImmerseTL || {};
       } catch (err) {}
     };
 
+    headerActions.appendChild(exportBtn);
     headerActions.appendChild(clearBtn);
     headerActions.appendChild(minBtn);
     headerActions.appendChild(closeBtn);
@@ -160,16 +204,13 @@ window.ImmerseTL = window.ImmerseTL || {};
       let lastIndex = subtitleHistory.length - 1;
       let lastEntry = subtitleHistory[lastIndex];
 
-      // Check if new caption is continuation of previous caption
       if (trimmed.startsWith(lastEntry.raw) || trimmed.includes(lastEntry.raw)) {
         subtitleHistory[lastIndex] = entry;
       } else if (lastEntry.raw.startsWith(trimmed) || lastEntry.raw.includes(trimmed)) {
-        // YouTube live subtitle fluctuation/partial edit
         if (entry.translation) {
           subtitleHistory[lastIndex] = entry;
         }
       } else {
-        // Distinct new sentence
         subtitleHistory.push(entry);
         if (subtitleHistory.length > MAX_HISTORY) {
           subtitleHistory.shift();
@@ -187,33 +228,52 @@ window.ImmerseTL = window.ImmerseTL || {};
     const distanceFromBottom = historyContent.scrollHeight - historyContent.scrollTop - historyContent.clientHeight;
     const isAtBottom = distanceFromBottom < 35;
 
-    historyContent.innerHTML = '';
+    const emptyDiv = historyContent.querySelector('.yt-history-empty');
+    if (emptyDiv) emptyDiv.remove();
 
     if (subtitleHistory.length === 0) {
-      const emptyDiv = document.createElement('div');
-      emptyDiv.className = 'yt-history-empty';
+      historyContent.innerHTML = '';
+      const emptyDivNew = document.createElement('div');
+      emptyDivNew.className = 'yt-history-empty';
       let emptyMsg = "Menunggu subtitle video...";
       try { emptyMsg = chrome.i18n.getMessage("logEmpty") || emptyMsg; } catch(e) {}
-      emptyDiv.textContent = emptyMsg;
-      historyContent.appendChild(emptyDiv);
+      emptyDivNew.textContent = emptyMsg;
+      historyContent.appendChild(emptyDivNew);
       return;
     }
 
     const highlightFn = (ITL.translator && ITL.translator.highlightSafeText) ? ITL.translator.highlightSafeText : (t => t);
 
-    subtitleHistory.forEach((item, index) => {
-      const p = document.createElement('div');
-      p.className = 'yt-history-line' + (index === subtitleHistory.length - 1 ? ' latest' : '');
+    // Sync DOM node count with history array length (handle shifts)
+    while (historyContent.children.length > subtitleHistory.length) {
+      historyContent.removeChild(historyContent.firstChild);
+    }
 
+    for (let i = 0; i < subtitleHistory.length; i++) {
+      const item = subtitleHistory[i];
+      let child = historyContent.children[i];
+      
+      let htmlContent = '';
       if (item.translation) {
         const romajiHtml = item.romaji ? `<div class="yt-history-romaji">${highlightFn(item.romaji)}</div>` : '';
-        p.innerHTML = `${romajiHtml}<div class="yt-history-trans">${highlightFn(item.translation)}</div>`;
+        htmlContent = `${romajiHtml}<div class="yt-history-trans">${highlightFn(item.translation)}</div>`;
       } else {
-        p.innerHTML = highlightFn(item.raw);
+        htmlContent = highlightFn(item.raw);
       }
 
-      historyContent.appendChild(p);
-    });
+      if (!child) {
+        child = document.createElement('div');
+        historyContent.appendChild(child);
+      }
+      
+      child.className = 'yt-history-line' + (i === subtitleHistory.length - 1 ? ' latest' : '');
+      
+      // Only update DOM if content actually changed to save CPU cycles
+      if (child.dataset.cachedHtml !== htmlContent) {
+        child.innerHTML = htmlContent;
+        child.dataset.cachedHtml = htmlContent;
+      }
+    }
 
     if (!isHistoryMinimized && isAtBottom) {
       historyContent.scrollTop = historyContent.scrollHeight;
@@ -222,12 +282,17 @@ window.ImmerseTL = window.ImmerseTL || {};
 
   function clearHistory() {
     subtitleHistory = [];
-    if (historyContent) historyContent.innerHTML = '';
+    let existingOverlay = document.getElementById('yt-smart-translate-history');
+    if (existingOverlay) {
+      existingOverlay.remove();
+    }
+    historyOverlay = null;
+    historyContent = null;
   }
 
   ITL.history = {
     ensureOverlay: ensureHistoryOverlay,
-    createOverlay: createHistoryOverlay,
+    updatePositioningMode: updatePositioningMode,
     update: updateHistory,
     render: renderHistory,
     clear: clearHistory,

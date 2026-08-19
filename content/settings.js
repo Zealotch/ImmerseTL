@@ -13,16 +13,26 @@ window.ImmerseTL = window.ImmerseTL || {};
         bgBlur: 8,
         fontColor: '#ffffff',
         subtitleTheme: 'default',
+        targetLang: 'id',
         translateMode: 'default',
         showHistory: false,
+        isFreeFloating: false,
         dragX: 0,
         dragY: 0,
         historyDragX: 0,
         historyDragY: 0
       };
 
+  function isExtensionValid() {
+    try {
+      return typeof chrome !== 'undefined' && chrome.runtime && !!chrome.runtime.id;
+    } catch (e) {
+      return false;
+    }
+  }
+
   function applySettings() {
-    if (typeof chrome === 'undefined' || !chrome.storage || !chrome.storage.local) return;
+    if (!isExtensionValid() || !chrome.storage || !chrome.storage.local) return;
     try {
       // Use defaults from common.js if available
       const defaultState = (typeof window !== 'undefined' && window.ImmerseTL_Common) 
@@ -30,6 +40,8 @@ window.ImmerseTL = window.ImmerseTL || {};
         : ITL.settings;
         
       chrome.storage.local.get(defaultState, (items) => {
+        if (!isExtensionValid() || (chrome.runtime && chrome.runtime.lastError)) return;
+        
         // Validate items
         const validItems = (typeof window !== 'undefined' && window.ImmerseTL_Common && typeof window.ImmerseTL_Common.validateSettings === 'function')
           ? window.ImmerseTL_Common.validateSettings(items)
@@ -62,14 +74,19 @@ window.ImmerseTL = window.ImmerseTL || {};
         }
       });
     } catch (e) {
+      if (e && e.message && e.message.includes('Extension context invalidated')) {
+        return;
+      }
       console.warn("[ImmerseTL] applySettings failed:", e);
     }
   }
 
   // Real-time Storage Listener
   try {
-    chrome.storage.onChanged.addListener((changes, namespace) => {
-      if (namespace === 'local') {
+    if (isExtensionValid() && chrome.storage && chrome.storage.onChanged) {
+      chrome.storage.onChanged.addListener((changes, namespace) => {
+        if (!isExtensionValid()) return;
+        if (namespace === 'local') {
         if (changes.isSubtitleOverlayEnabled !== undefined) {
           ITL.settings.isSubtitleOverlayEnabled = changes.isSubtitleOverlayEnabled.newValue;
           if (ITL.overlay && typeof ITL.overlay.updateVisibility === 'function') {
@@ -82,6 +99,9 @@ window.ImmerseTL = window.ImmerseTL || {};
         if (changes.fontColor) ITL.settings.fontColor = changes.fontColor.newValue || '#ffffff';
         if (changes.subtitleTheme) ITL.settings.subtitleTheme = changes.subtitleTheme.newValue || 'default';
         if (changes.translateMode) ITL.settings.translateMode = changes.translateMode.newValue || 'default';
+        if (changes.animationLevel) ITL.settings.animationLevel = changes.animationLevel.newValue || 'full';
+        if (changes.wordGlowEnabled !== undefined) ITL.settings.wordGlowEnabled = changes.wordGlowEnabled.newValue;
+        if (changes.autoEmojiEnabled !== undefined) ITL.settings.autoEmojiEnabled = changes.autoEmojiEnabled.newValue;
         
         if (changes.dragX && ITL.overlay && ITL.overlay.element) {
           ITL.settings.dragX = changes.dragX.newValue;
@@ -101,6 +121,15 @@ window.ImmerseTL = window.ImmerseTL || {};
             }
           }
         }
+        if (changes.isFreeFloating !== undefined) {
+          ITL.settings.isFreeFloating = changes.isFreeFloating.newValue;
+          if (ITL.overlay && typeof ITL.overlay.updatePositioningMode === 'function') {
+            ITL.overlay.updatePositioningMode();
+          }
+          if (ITL.history && typeof ITL.history.updatePositioningMode === 'function') {
+            ITL.history.updatePositioningMode();
+          }
+        }
         if (changes.historyDragX) {
           ITL.settings.historyDragX = changes.historyDragX.newValue;
           if (ITL.history && ITL.history.overlay) {
@@ -115,86 +144,117 @@ window.ImmerseTL = window.ImmerseTL || {};
         }
         
         if (ITL.overlay && typeof ITL.overlay.applyThemeAndStyles === 'function') {
-          ITL.overlay.applyThemeAndStyles(true);
+          // A settings change may rebuild the visual layout, but must never be
+          // treated as a fresh caption cue (which would replay the entrance).
+          ITL.overlay.applyThemeAndStyles(true, false);
         }
-      }
-    });
+        }
+      });
+    }
   } catch (e) {
-    console.warn("[ImmerseTL] storage.onChanged listener failed:", e);
+    if (e && e.message && e.message.includes('Extension context invalidated')) {
+      // Ignored: Extension context invalidated
+    } else {
+      console.warn("[ImmerseTL] storage.onChanged listener failed:", e);
+    }
   }
 
   // Real-time messages from popup & shortcuts
   try {
-    chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-      if ((request.action === 'updateLiveSettings' || request.action === 'applyPreset') && (request.settings || request.preset)) {
-        const s = request.settings || request.preset;
-        if (s.isSubtitleOverlayEnabled !== undefined) {
-          ITL.settings.isSubtitleOverlayEnabled = s.isSubtitleOverlayEnabled;
-          if (ITL.overlay && typeof ITL.overlay.updateVisibility === 'function') {
-            ITL.overlay.updateVisibility();
-          }
-        }
-        if (s.fontSize !== undefined) ITL.settings.fontSize = s.fontSize;
-        if (s.bgOpacity !== undefined) ITL.settings.bgOpacity = s.bgOpacity;
-        if (s.bgBlur !== undefined) ITL.settings.bgBlur = s.bgBlur;
-        if (s.fontColor !== undefined) ITL.settings.fontColor = s.fontColor;
-        if (s.subtitleTheme !== undefined) ITL.settings.subtitleTheme = s.subtitleTheme;
-        if (s.translateMode !== undefined) ITL.settings.translateMode = s.translateMode;
-        if (s.activePreset !== undefined) ITL.settings.activePreset = s.activePreset;
-        if (s.showHistory !== undefined) {
-          ITL.settings.showHistory = s.showHistory;
-          if (ITL.history && typeof ITL.history.ensureOverlay === 'function') {
-            ITL.history.ensureOverlay();
-            if (ITL.history.overlay) {
-              ITL.history.overlay.style.display = ITL.settings.showHistory ? 'flex' : 'none';
-              ITL.history.render();
+    if (isExtensionValid() && chrome.runtime && chrome.runtime.onMessage) {
+      chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+        if (!isExtensionValid()) return;
+        if ((request.action === 'updateLiveSettings' || request.action === 'applyPreset') && (request.settings || request.preset)) {
+          const s = request.settings || request.preset;
+          if (s.isSubtitleOverlayEnabled !== undefined) {
+            ITL.settings.isSubtitleOverlayEnabled = s.isSubtitleOverlayEnabled;
+            if (ITL.overlay && typeof ITL.overlay.updateVisibility === 'function') {
+              ITL.overlay.updateVisibility();
             }
           }
-        }
-        if (s.resetPos) {
-          ITL.settings.dragX = 0;
-          ITL.settings.dragY = 0;
-          ITL.settings.historyDragX = 0;
-          ITL.settings.historyDragY = 0;
-          if (ITL.overlay && ITL.overlay.element) {
-            ITL.overlay.element.style.setProperty('--drag-x', '0px');
-            ITL.overlay.element.style.setProperty('--drag-y', '0px');
-          }
-          if (ITL.history && ITL.history.overlay) {
-            ITL.history.overlay.style.setProperty('--drag-x', '0px');
-            ITL.history.overlay.style.setProperty('--drag-y', '0px');
-          }
-        }
-        if (ITL.overlay && typeof ITL.overlay.applyThemeAndStyles === 'function') {
-          ITL.overlay.applyThemeAndStyles(true);
-        }
-        sendResponse({ success: true });
-      } else if (request.command === 'toggle_history') {
-        chrome.storage.local.get({ showHistory: false }, (items) => {
-          const nextState = !items.showHistory;
-          chrome.storage.local.set({ showHistory: nextState });
-          ITL.settings.showHistory = nextState;
-          if (ITL.history && typeof ITL.history.ensureOverlay === 'function') {
-            ITL.history.ensureOverlay();
-            if (ITL.history.overlay) {
-              ITL.history.overlay.style.display = nextState ? 'flex' : 'none';
-              ITL.history.render();
+          if (s.fontSize !== undefined) ITL.settings.fontSize = s.fontSize;
+          if (s.bgOpacity !== undefined) ITL.settings.bgOpacity = s.bgOpacity;
+          if (s.bgBlur !== undefined) ITL.settings.bgBlur = s.bgBlur;
+          if (s.fontColor !== undefined) ITL.settings.fontColor = s.fontColor;
+          if (s.subtitleTheme !== undefined) ITL.settings.subtitleTheme = s.subtitleTheme;
+          if (s.translateMode !== undefined) ITL.settings.translateMode = s.translateMode;
+          if (s.animationLevel !== undefined) ITL.settings.animationLevel = s.animationLevel;
+          if (s.wordGlowEnabled !== undefined) ITL.settings.wordGlowEnabled = s.wordGlowEnabled;
+          if (s.autoEmojiEnabled !== undefined) ITL.settings.autoEmojiEnabled = s.autoEmojiEnabled;
+          if (s.activePreset !== undefined) ITL.settings.activePreset = s.activePreset;
+          if (s.showHistory !== undefined) {
+            ITL.settings.showHistory = s.showHistory;
+            if (ITL.history && typeof ITL.history.ensureOverlay === 'function') {
+              ITL.history.ensureOverlay();
+              if (ITL.history.overlay) {
+                ITL.history.overlay.style.display = ITL.settings.showHistory ? 'flex' : 'none';
+                ITL.history.render();
+              }
             }
           }
-        });
-      } else if (request.command === 'toggle_subtitle') {
-        chrome.storage.local.get({ isSubtitleOverlayEnabled: true }, (items) => {
-          const nextState = items.isSubtitleOverlayEnabled === undefined ? false : !items.isSubtitleOverlayEnabled;
-          chrome.storage.local.set({ isSubtitleOverlayEnabled: nextState });
-          ITL.settings.isSubtitleOverlayEnabled = nextState;
-          if (ITL.overlay && typeof ITL.overlay.updateVisibility === 'function') {
-            ITL.overlay.updateVisibility();
+          if (s.isFreeFloating !== undefined) {
+            ITL.settings.isFreeFloating = s.isFreeFloating;
+            if (ITL.overlay && typeof ITL.overlay.updatePositioningMode === 'function') {
+              ITL.overlay.updatePositioningMode();
+            }
+            if (ITL.history && typeof ITL.history.updatePositioningMode === 'function') {
+              ITL.history.updatePositioningMode();
+            }
           }
-        });
-      }
-    });
+          if (s.resetPos) {
+            ITL.settings.dragX = 0;
+            ITL.settings.dragY = 0;
+            ITL.settings.historyDragX = 0;
+            ITL.settings.historyDragY = 0;
+            if (ITL.overlay && ITL.overlay.element) {
+              ITL.overlay.element.style.setProperty('--drag-x', '0px');
+              ITL.overlay.element.style.setProperty('--drag-y', '0px');
+            }
+            if (ITL.history && ITL.history.overlay) {
+              ITL.history.overlay.style.setProperty('--drag-x', '0px');
+              ITL.history.overlay.style.setProperty('--drag-y', '0px');
+            }
+          }
+          if (ITL.overlay && typeof ITL.overlay.applyThemeAndStyles === 'function') {
+            // Apply a popup/preset update without replaying caption motion.
+            ITL.overlay.applyThemeAndStyles(true, false);
+          }
+          sendResponse({ success: true });
+        } else if (request.command === 'toggle_history') {
+          if (!isExtensionValid()) return;
+          chrome.storage.local.get({ showHistory: false }, (items) => {
+            if (!isExtensionValid() || (chrome.runtime && chrome.runtime.lastError)) return;
+            const nextState = !items.showHistory;
+            chrome.storage.local.set({ showHistory: nextState });
+            ITL.settings.showHistory = nextState;
+            if (ITL.history && typeof ITL.history.ensureOverlay === 'function') {
+              ITL.history.ensureOverlay();
+              if (ITL.history.overlay) {
+                ITL.history.overlay.style.display = nextState ? 'flex' : 'none';
+                ITL.history.render();
+              }
+            }
+          });
+        } else if (request.command === 'toggle_subtitle') {
+          if (!isExtensionValid()) return;
+          chrome.storage.local.get({ isSubtitleOverlayEnabled: true }, (items) => {
+            if (!isExtensionValid() || (chrome.runtime && chrome.runtime.lastError)) return;
+            const nextState = items.isSubtitleOverlayEnabled === undefined ? false : !items.isSubtitleOverlayEnabled;
+            chrome.storage.local.set({ isSubtitleOverlayEnabled: nextState });
+            ITL.settings.isSubtitleOverlayEnabled = nextState;
+            if (ITL.overlay && typeof ITL.overlay.updateVisibility === 'function') {
+              ITL.overlay.updateVisibility();
+            }
+          });
+        }
+      });
+    }
   } catch (e) {
-    console.warn("[ImmerseTL] onMessage listener failed:", e);
+    if (e && e.message && e.message.includes('Extension context invalidated')) {
+      // Ignored: Extension context invalidated
+    } else {
+      console.warn("[ImmerseTL] onMessage listener failed:", e);
+    }
   }
 
   ITL.applySettings = applySettings;

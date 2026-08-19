@@ -14,8 +14,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     const { text, targetLang } = request;
     const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLang}&dt=t&dt=rm&q=${encodeURIComponent(text)}`;
     
-    fetch(url)
-      .then(res => res.json())
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 4000);
+    fetch(url, { signal: controller.signal })
+      .then(res => { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
       .then(json => {
         let translation = "";
         if (json[0]) {
@@ -38,6 +40,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         }
         sendResponse({ success: true, translation: translation.trim(), romaji: romaji.trim(), sourceLang: sourceLang });
       })
+      .finally(() => clearTimeout(timeoutId))
       .catch(error => {
         sendResponse({ success: false, error: error.message });
       });

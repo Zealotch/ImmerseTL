@@ -1,47 +1,152 @@
 {
-  "extName": { "message": "ImmerseTL" },
-  "extDesc": { "message": "Memperbaiki subtitle YouTube yang berkedip dengan menyimpannya di antarmuka khusus." },
-  "cmdToggleHistory": { "message": "Tampilkan/Sembunyikan Log History" },
-  "cmdToggleSubtitle": { "message": "Tampilkan/Sembunyikan Subtitle" },
-  
-  "uiTitle": { "message": "ImmerseTL" },
-  "uiSubtitle": { "message": "Panel Pengaturan Subtitle Lanjutan" },
-  
-  "lblFontSize": { "message": "Ukuran Font" },
-  "lblBgOpacity": { "message": "Kegelapan Background" },
-  "lblBgBlur": { "message": "Efek Kaca (Blur)" },
-  
-  "lblTranslateMode": { "message": "Mode Operasi" },
-  "modeDefault": { "message": "📺 Buffer Biasa (Bawaan YT)" },
-  "modeDualEn": { "message": "🇯🇵 Dual Sub: Romaji + Inggris" },
-  "modeDualId": { "message": "🇯🇵 Dual Sub: Romaji + Indonesia" },
-  
-  "lblFontColor": { "message": "Warna Teks Subtitle" },
-  "colorWhite": { "message": "🤍 Putih Standar" },
-  "colorYellow": { "message": "💛 Kuning (Gaya Anime)" },
-  "colorCyan": { "message": "💙 Cyan (Biru Muda)" },
-  "colorGreen": { "message": "💚 Hijau Terang" },
-  "colorPink": { "message": "🌸 Pink Pastel" },
-  "colorOrange": { "message": "🍊 Oranye Terang" },
-  "colorPurple": { "message": "🍇 Ungu Muda (Plum)" },
-  "colorGray": { "message": "🌫️ Abu-abu Lembut" },
-  "colorCustom": { "message": "🎨 Warna Kustom..." },
-  
-  "lblEnableSubtitle": { "message": "Aktifkan Subtitle Kustom" },
-  "lblShowHistory": { "message": "Tampilkan Chat History Log" },
-  
-  "btnShortcuts": { "message": "⚙️ Ubah Tombol Shortcut" },
-  "btnResetPos": { "message": "🔄 Reset Posisi Subtitle" },
-  "btnResetPosDone": { "message": "Posisi Direset!" },
-  
-  "errServerBusy": { "message": "⏳ Translation Server Busy..." },
-  "logTitle": { "message": "History Log" },
-  "logEmpty": { "message": "Menunggu subtitle video..." },
-  
-  "lblQuickPresets": { "message": "⚡ Quick Presets (1-Klik)" },
-  "lblCurrentPreset": { "message": "Profil Aktif:" },
-  "btnHistoryClear": { "message": "Hapus Riwayat (Clear)" },
-  "btnHistoryMin": { "message": "Perkecil (Minimize)" },
-  "btnHistoryExp": { "message": "Perbesar (Expand)" },
-  "btnHistoryClose": { "message": "Tutup (Close)" }
+  "extName": {
+    "message": "ImmerseTL"
+  },
+  "extDesc": {
+    "message": "Memperbaiki subtitle YouTube yang berkedip dengan menyimpannya di antarmuka khusus."
+  },
+  "cmdToggleHistory": {
+    "message": "Tampilkan/Sembunyikan Log History"
+  },
+  "cmdToggleSubtitle": {
+    "message": "Tampilkan/Sembunyikan Subtitle"
+  },
+  "uiTitle": {
+    "message": "ImmerseTL"
+  },
+  "uiSubtitle": {
+    "message": "Panel Pengaturan Subtitle Lanjutan"
+  },
+  "tabDisplay": {
+    "message": "🎨 Tampilan"
+  },
+  "tabFeatures": {
+    "message": "⚙️ Fitur"
+  },
+  "tabTools": {
+    "message": "🛠️ Pintasan"
+  },
+  "lblFontSize": {
+    "message": "Ukuran Font"
+  },
+  "lblBgOpacity": {
+    "message": "Kegelapan Background"
+  },
+  "lblBgBlur": {
+    "message": "Efek Kaca (Blur)"
+  },
+  "lblTheme": {
+    "message": "Tema & Gaya Subtitle"
+  },
+  "lblTranslateMode": {
+    "message": "Mode Operasi"
+  },
+  "modeDefault": {
+    "message": "📺 Buffer Biasa (Bawaan YT)"
+  },
+  "modeDualEn": {
+    "message": "🇯🇵 Dual Sub: Romaji + Inggris"
+  },
+  "modeDualId": {
+    "message": "🇯🇵 Dual Sub: Romaji + Indonesia"
+  },
+  "lblFreeFloating": {
+    "message": "Free-Floating Mode (Bebas Bergerak)"
+  },
+  "lblFontColor": {
+    "message": "Warna Teks Subtitle"
+  },
+  "colorWhite": {
+    "message": "🤍 Putih Standar"
+  },
+  "colorYellow": {
+    "message": "💛 Kuning (Gaya Anime)"
+  },
+  "colorCyan": {
+    "message": "💙 Cyan (Biru Muda)"
+  },
+  "colorGreen": {
+    "message": "💚 Hijau Terang"
+  },
+  "colorPink": {
+    "message": "🌸 Pink Pastel"
+  },
+  "colorOrange": {
+    "message": "🍊 Oranye Terang"
+  },
+  "colorPurple": {
+    "message": "🍇 Ungu Muda (Plum)"
+  },
+  "colorGray": {
+    "message": "🌫️ Abu-abu Lembut"
+  },
+  "colorCustom": {
+    "message": "🎨 Warna Kustom..."
+  },
+  "lblEnableSubtitle": {
+    "message": "Aktifkan Subtitle Kustom"
+  },
+  "lblShowHistory": {
+    "message": "Tampilkan Chat History Log"
+  },
+  "lblWordGlow": {
+    "message": "✨ Auto Word Glow & Karaoke"
+  },
+  "btnShortcuts": {
+    "message": "⚙️ Ubah Tombol Shortcut"
+  },
+  "btnResetPos": {
+    "message": "🔄 Reset Posisi Subtitle"
+  },
+  "btnResetPosDone": {
+    "message": "Posisi Direset!"
+  },
+  "errServerBusy": {
+    "message": "⏳ Translation Server Busy..."
+  },
+  "logTitle": {
+    "message": "History Log"
+  },
+  "logEmpty": {
+    "message": "Menunggu subtitle video..."
+  },
+  "lblQuickPresets": {
+    "message": "⚡ Quick Presets (1-Klik)"
+  },
+  "lblCurrentPreset": {
+    "message": "Profil Aktif:"
+  },
+  "lblAnimationLevel": {
+    "message": "✨ Animasi Subtitle"
+  },
+  "animFull": {
+    "message": "⚡ Penuh (Pop & Wiggle / Glitch)"
+  },
+  "animSubtle": {
+    "message": "🍃 Halus (Fade Lembut)"
+  },
+  "animOff": {
+    "message": "⛔ Mati (Tanpa Animasi)"
+  },
+  "btnHistoryClear": {
+    "message": "Hapus Riwayat (Clear)"
+  },
+  "btnHistoryMin": {
+    "message": "Perkecil (Minimize)"
+  },
+  "btnHistoryExp": {
+    "message": "Perbesar (Expand)"
+  },
+  "btnHistoryClose": {
+    "message": "Tutup (Close)"
+  },
+  "lblP5Avatar": {
+    "message": "🎭 Karakter Persona 5"
+  },
+  "lblP5Speaker": {
+    "message": "Nama Pembicara (Opsional Override)"
+  },
+  "lblAutoEmoji": {
+    "message": "Auto Emoji (Gaya CapCut)"
+  }
 }

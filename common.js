@@ -1,4 +1,78 @@
-// common.js - Shared configuration, presets, and validator
+// common.js - Shared configuration, presets, theme tokens, and validator
+
+const THEME_TOKENS = Object.freeze({
+  default: {
+    label: 'Glassmorphism',
+    animation: 'fade',
+    borderRadius: '12px',
+    fontWeight: 500,
+    highContrast: false
+  },
+  cinema: {
+    label: 'Cinema',
+    animation: 'fade',
+    borderRadius: '4px',
+    fontWeight: 700,
+    highContrast: true
+  },
+  comicHeist: {
+    label: 'Comic Heist',
+    animation: 'comic-pop',
+    borderRadius: '0px',
+    fontWeight: 900,
+    highContrast: true,
+    hasPseudoBadge: true
+  },
+  wuwa: {
+    label: 'Wuthering Waves',
+    animation: 'fade',
+    borderRadius: '0px',
+    fontWeight: 600,
+    highContrast: true
+  },
+  neon: {
+    label: 'Neon Glow',
+    animation: 'glitch',
+    borderRadius: '6px',
+    fontWeight: 700,
+    highContrast: true
+  },
+  retro: {
+    label: 'Retro VHS',
+    animation: 'scanline',
+    borderRadius: '2px',
+    fontWeight: 700,
+    highContrast: true
+  },
+  sakura: {
+    label: 'Sakura',
+    animation: 'float',
+    borderRadius: '16px',
+    fontWeight: 600,
+    highContrast: false
+  },
+  nature: {
+    label: 'Nature',
+    animation: 'fade',
+    borderRadius: '14px',
+    fontWeight: 600,
+    highContrast: false
+  },
+  invisible: {
+    label: 'Invisible',
+    animation: 'fade',
+    borderRadius: '0px',
+    fontWeight: 800,
+    highContrast: true
+  },
+  gaming: {
+    label: 'Gaming HUD',
+    animation: 'slide',
+    borderRadius: '2px 8px 8px 2px',
+    fontWeight: 600,
+    highContrast: true
+  }
+});
 
 const PRESETS = Object.freeze({
   cinema: {
@@ -22,11 +96,26 @@ const PRESETS = Object.freeze({
     icon: '🎭',
     description: 'Stylized comic/manga look inspired by Persona 5',
     settings: {
-      subtitleTheme: 'retro',
+      subtitleTheme: 'comicHeist',
       fontSize: 30,
       fontColor: '#ffffff',
-      bgOpacity: 88,
+      bgOpacity: 95,
       bgBlur: 0,
+      translateMode: 'default',
+      isSubtitleOverlayEnabled: true
+    }
+  },
+  wuwa: {
+    key: 'wuwa',
+    name: 'Wuthering Waves',
+    icon: '🌊',
+    description: 'Sleek dark sci-fi glass with neon accents',
+    settings: {
+      subtitleTheme: 'wuwa',
+      fontSize: 26,
+      fontColor: '#ffffff',
+      bgOpacity: 85,
+      bgBlur: 10,
       translateMode: 'default',
       isSubtitleOverlayEnabled: true
     }
@@ -100,8 +189,17 @@ const DEFAULT_SETTINGS = Object.freeze({
   bgBlur: 8,
   fontColor: '#ffffff',
   subtitleTheme: 'default',
+  targetLang: 'id',
   translateMode: 'default',
+  animationLevel: 'full', // 'full' | 'subtle' | 'off'
   showHistory: false,
+  isFreeFloating: false,
+  wordGlowEnabled: true,
+  autoEmojiEnabled: false,
+  typewriterEffect: false,
+  emotionDetection: false,
+  mangaSfxEnabled: false,
+  useNativeTranslation: false,
   activePreset: 'custom',
   customPresets: {},
   dragX: 0,
@@ -123,7 +221,17 @@ function validateSettings(settings) {
     fontColor: typeof settings.fontColor === 'string' && /^#[0-9A-Fa-f]{6}$/.test(settings.fontColor) ? settings.fontColor : DEFAULT_SETTINGS.fontColor,
     subtitleTheme: typeof settings.subtitleTheme === 'string' ? settings.subtitleTheme : DEFAULT_SETTINGS.subtitleTheme,
     translateMode: typeof settings.translateMode === 'string' ? settings.translateMode : DEFAULT_SETTINGS.translateMode,
+    animationLevel: ['full', 'subtle', 'slide-up', 'expand', 'slice', 'bounce', 'burn', 'ripple', 'flip', 'off'].includes(settings.animationLevel) ? settings.animationLevel : DEFAULT_SETTINGS.animationLevel,
     showHistory: typeof settings.showHistory === 'boolean' ? settings.showHistory : DEFAULT_SETTINGS.showHistory,
+    isFreeFloating: typeof settings.isFreeFloating === 'boolean' ? settings.isFreeFloating : DEFAULT_SETTINGS.isFreeFloating,
+    wordGlowEnabled: typeof settings.wordGlowEnabled === 'boolean' ? settings.wordGlowEnabled : DEFAULT_SETTINGS.wordGlowEnabled,
+    autoEmojiEnabled: typeof settings.autoEmojiEnabled === 'boolean' ? settings.autoEmojiEnabled : DEFAULT_SETTINGS.autoEmojiEnabled,
+    typewriterEffect: typeof settings.typewriterEffect === 'boolean' ? settings.typewriterEffect : DEFAULT_SETTINGS.typewriterEffect,
+    emotionDetection: typeof settings.emotionDetection === 'boolean' ? settings.emotionDetection : DEFAULT_SETTINGS.emotionDetection,
+    mangaSfxEnabled: typeof settings.mangaSfxEnabled === 'boolean' ? settings.mangaSfxEnabled : DEFAULT_SETTINGS.mangaSfxEnabled,
+    useNativeTranslation: typeof settings.useNativeTranslation === 'boolean' ? settings.useNativeTranslation : DEFAULT_SETTINGS.useNativeTranslation,
+    targetLang: typeof settings.targetLang === 'string' ? settings.targetLang : DEFAULT_SETTINGS.targetLang,
+    translateMode: typeof settings.translateMode === 'string' ? settings.translateMode : DEFAULT_SETTINGS.translateMode,
     activePreset: typeof settings.activePreset === 'string' ? settings.activePreset : DEFAULT_SETTINGS.activePreset,
     customPresets: typeof settings.customPresets === 'object' && settings.customPresets !== null ? settings.customPresets : DEFAULT_SETTINGS.customPresets,
     dragX: typeof settings.dragX === 'number' ? settings.dragX : DEFAULT_SETTINGS.dragX,
@@ -133,11 +241,18 @@ function validateSettings(settings) {
   };
 }
 
-// Support for both ES modules and global script loading
+const ImmerseTL_Common = {
+  PRESETS,
+  THEME_TOKENS,
+  DEFAULT_SETTINGS,
+  validateSettings,
+  clamp
+};
+
+// Support for both ES modules, CommonJS, and global script loading
 if (typeof window !== 'undefined') {
-  window.ImmerseTL_Common = {
-    PRESETS,
-    DEFAULT_SETTINGS,
-    validateSettings
-  };
+  window.ImmerseTL_Common = ImmerseTL_Common;
+}
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = ImmerseTL_Common;
 }

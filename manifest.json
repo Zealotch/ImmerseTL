@@ -6,6 +6,7 @@
   "default_locale": "en",
   "icons": {
     "16": "icon_ImmersiveTL.png",
+    "32": "icon_ImmersiveTL.png",
     "48": "icon_ImmersiveTL.png",
     "128": "icon_ImmersiveTL.png"
   },
@@ -54,8 +55,15 @@
     "default_title": "ImmerseTL",
     "default_icon": {
       "16": "icon_ImmersiveTL.png",
+      "32": "icon_ImmersiveTL.png",
       "48": "icon_ImmersiveTL.png",
       "128": "icon_ImmersiveTL.png"
     }
-  }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["assets/*", "assets/fonts/*"],
+      "matches": ["*://*.youtube.com/*"]
+    }
+  ]
 }

@@ -1,6 +1,6 @@
 /* Custom YouTube Subtitle Overlay */
 #yt-smart-translate-overlay {
-  position: absolute;
+  position: fixed;
   bottom: 10%;
   left: 50%;
   --drag-x: 0px;
@@ -67,16 +67,56 @@
   transform: translateY(10px);
 }
 
-/* Text Highlights */
+/* --- SMART SEMANTIC HIGHLIGHTING SYSTEM --- */
 .yt-highlight-bracket {
-  color: #ffb6c1; /* Pink pastel */
+  color: #ff9ebb;
   font-style: italic;
-  font-weight: bold;
+  font-weight: 600;
+  opacity: 0.95;
+}
+
+.yt-highlight-symbol {
+  color: #ffd700;
+  font-weight: 700;
+  display: inline-block;
+  transform: scale(1.08);
+  margin: 0 1px;
+}
+
+.yt-highlight-quote {
+  color: #7efcf0;
+  font-style: italic;
+  font-weight: 600;
+}
+
+.yt-highlight-number {
+  color: #ffb833;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.yt-highlight-proper {
+  color: #ff7799;
+  font-weight: 700;
 }
 
 .yt-highlight-word {
   color: #ffd700; /* Gold */
   font-weight: bold;
+}
+
+.yt-auto-emoji {
+  display: inline-block;
+  transform-origin: center bottom;
+  animation: itl-emoji-pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+  margin: 0 2px;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+}
+
+@keyframes itl-emoji-pop {
+  0% { transform: scale(0) rotate(-15deg); opacity: 0; }
+  50% { transform: scale(1.2) rotate(5deg); }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
 }
 
 /* Dual Subtitle Mode Styles */
@@ -95,17 +135,16 @@
 }
 
 /* Hide YouTube's default caption window when ImmerseTL custom subtitles are enabled */
-:root:not(.immerselt-custom-subtitles-disabled) .ytp-caption-window-container,
-:root:not(.immerselt-custom-subtitles-disabled) .caption-window,
-:root:not(.immerselt-custom-subtitles-disabled) .ytp-caption-window-rollup,
-:root:not(.immerselt-custom-subtitles-disabled) .ytp-caption-window-bottom,
+.immerselt-custom-subtitles-enabled #ytp-caption-window-container,
 .immerselt-custom-subtitles-enabled .ytp-caption-window-container,
 .immerselt-custom-subtitles-enabled .caption-window,
 .immerselt-custom-subtitles-enabled .ytp-caption-window-rollup,
-.immerselt-custom-subtitles-enabled .ytp-caption-window-bottom {
-  opacity: 0.0001 !important;
-  font-size: 0px !important;
-  line-height: 0 !important;
+.immerselt-custom-subtitles-enabled #ytp-caption-window-bottom,
+.immerselt-custom-subtitles-enabled .ytp-caption-segment,
+.immerselt-custom-subtitles-enabled .caption-visual-line {
+  opacity: 0.001 !important;
+  color: transparent !important;
+  background-color: transparent !important;
   pointer-events: none !important;
   user-select: none !important;
 }
@@ -287,9 +326,489 @@
   color: #66ccff;
 }
 
+/* Theme: Wuthering Waves (Sci-Fi Minimalist) */
+.yt-smart-translate-text.theme-wuwa {
+  /* Authentic Wuthering Waves look: highly transparent with faint radial gradient */
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.3) 0%, transparent 70%) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  font-family: 'Inter', 'Roboto', sans-serif;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  padding: 0 !important;
+  text-transform: none;
+  position: relative;
+  overflow: visible !important;
+  text-align: center;
+}
+
+.theme-wuwa .itl-wuwa-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 40px;
+}
+
+.theme-wuwa .itl-wuwa-top-dec {
+  margin-bottom: 8px;
+  opacity: 0.8;
+  display: flex;
+  justify-content: center;
+}
+
+.theme-wuwa .itl-wuwa-bottom-dec {
+  margin-top: 10px;
+  opacity: 0.8;
+  display: flex;
+  justify-content: center;
+}
+
+.theme-wuwa .itl-wuwa-content {
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.theme-wuwa .yt-dual-romaji {
+  color: #a0a8b0;
+  font-size: calc(var(--font-size) * 0.65);
+  letter-spacing: 1px;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+.theme-wuwa .yt-highlight-bracket {
+  color: #00f0ff;
+  font-weight: 600;
+}
+.theme-wuwa .yt-highlight-word {
+  color: #e5e5e5;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+/* Theme: Comic Heist (Persona 5 Authentic Dialog Box) */
+.yt-smart-translate-text.theme-comicHeist,
+.yt-smart-translate-text.theme-comic-heist {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: visible !important;
+}
+
+/* Authentic Persona 5 Motion Container */
+.itl-p5-motion {
+  display: inline-flex;
+  align-items: flex-end;
+  position: relative;
+  max-width: 100%;
+  transform-origin: center bottom;
+}
+
+
+/* Persona 5 Main Speech Bubble Container */
+.itl-p5-dialog {
+  display: inline-flex;
+  align-items: stretch;
+  position: relative;
+  z-index: 2;
+  min-height: 52px;
+  min-width: 140px;
+  max-width: calc(100vw - 160px);
+}
+
+/* Unified 3D Multi-layer SVG Frame */
+.itl-p5-frame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+  overflow: visible;
+}
+
+/* Right Shard Accent: positioned on outer right corner, unscaled */
+.itl-p5-shard {
+  position: absolute;
+  right: -12px;
+  top: 50%;
+  width: 36px;
+  height: 28px;
+  z-index: 1;
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
+/* Inner Text Content Layer: generous padding ensures text sits cleanly inside the black dialogue area */
+.itl-p5-content {
+  position: relative;
+  z-index: 5;
+  padding: 18px 85px 18px 90px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+.itl-p5-text {
+  color: inherit;
+  /* Authentic Persona 5 dialogue display serif typography */
+  font-family: 'Palatino Linotype', 'Book Antiqua', Georgia, 'Times New Roman', serif !important;
+  font-weight: 700 !important;
+  font-size: var(--font-size) !important;
+  line-height: 1.38 !important;
+  letter-spacing: 0.5px !important;
+  text-shadow: 2px 2px 0px #000000;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+/* Dual Subtitle formatting inside P5 dialogue */
+.theme-comicHeist .yt-dual-romaji {
+  color: #ff9999;
+  font-family: Impact, 'Arial Narrow', sans-serif;
+  letter-spacing: 0.8px;
+  font-size: 0.72em;
+  margin-bottom: 2px;
+}
+
+.theme-comicHeist .yt-highlight-bracket {
+  color: #ff3333;
+}
+
+.theme-comicHeist .yt-highlight-symbol {
+  color: #ffd700;
+  text-shadow: 1px 1px 0px #000000;
+}
+
+.theme-comicHeist .yt-highlight-quote {
+  color: #ffffff;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 0 4px;
+  border-left: 2px solid #ff3333;
+  display: inline-block;
+}
+
+.theme-comicHeist .yt-highlight-number {
+  color: #ffd700;
+  font-family: Impact, 'Arial Narrow', sans-serif;
+  letter-spacing: 0.5px;
+}
+
+.theme-comicHeist .yt-highlight-proper {
+  color: #ff5555;
+  font-weight: 900;
+}
+
+.theme-comicHeist .yt-highlight-word {
+  color: #ffd700;
+  text-decoration: underline;
+  text-decoration-color: #ff3333;
+  text-underline-offset: 3px;
+}
+
+/* ========================================================================== */
+/* SMART THEMED ANIMATION SYSTEM & KEYFRAMES                                  */
+/* ========================================================================== */
+
+@keyframes p5-shell-pop {
+  0% {
+    transform: translate(-24px, 10px) scaleX(0.9);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(0, 0) scaleX(1);
+    opacity: 1;
+  }
+}
+
+@keyframes p5-shard-fade {
+  0% {
+    transform: translate(-12px, -50%);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(0, -50%);
+    opacity: 1;
+  }
+}
+
+@keyframes p5-text-fade {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+/* Comic Heist entrance: snappy 3D pop, then completely still. */
+.itl-p5-motion.anim-cue-in .itl-p5-dialog {
+  animation: p5-shell-pop 0.20s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.itl-p5-motion.anim-cue-in .itl-p5-shard {
+  animation: p5-shard-fade 0.10s 0.09s ease-out both;
+}
+
+.itl-p5-motion.anim-cue-in .itl-p5-content {
+  animation: p5-text-fade 0.08s 0.12s ease-out both;
+}
+
+/* Cyberpunk Neon Glitch Flash Entrance */
+@keyframes glitch-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.96) translateX(-4px);
+    filter: hue-rotate(90deg) brightness(1.8);
+    clip-path: inset(20% 0 30% 0);
+  }
+  40% {
+    opacity: 0.9;
+    transform: scale(1.02) translateX(3px);
+    filter: hue-rotate(-45deg) brightness(1.4);
+    clip-path: inset(0 0 10% 0);
+  }
+  70% {
+    transform: scale(0.99) translateX(-1px);
+    filter: brightness(1.2);
+    clip-path: inset(0 0 0 0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateX(0);
+    filter: none;
+    clip-path: none;
+  }
+}
+
+/* Retro CRT / Scanline Jitter Entrance */
+@keyframes scanline-in {
+  0% {
+    opacity: 0;
+    transform: scaleY(0.1) scaleX(0.8);
+    filter: brightness(2.5);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scaleY(1.08) scaleX(1.02);
+    filter: brightness(1.4);
+  }
+  100% {
+    opacity: 1;
+    transform: scaleY(1) scaleX(1);
+    filter: none;
+  }
+}
+
+/* Gaming Tactical Slide Entrance */
+@keyframes gaming-slide-in {
+  0% {
+    opacity: 0;
+    transform: translateX(-18px) scale(0.95);
+    border-left-width: 8px;
+  }
+  70% {
+    opacity: 1;
+    transform: translateX(2px) scale(1.01);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+    border-left-width: 3px;
+  }
+}
+
+/* Sakura Petal Soft Float */
+@keyframes float-in {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.94);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Standard Smooth Fade */
+@keyframes smooth-fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --- Dynamic Cue Trigger Animations --- */
+
+/* Comic Heist uses .itl-p5-motion above. It intentionally has no idle wiggle. */
+
+/* Neon Glow: Glitch Entrance */
+.yt-smart-translate-text.theme-neon.anim-cue-in {
+  animation: glitch-in 0.28s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
+}
+
+/* Retro VHS: Scanline Entrance */
+.yt-smart-translate-text.theme-retro.anim-cue-in {
+  animation: scanline-in 0.25s ease-out forwards;
+}
+
+/* Gaming HUD: Tactical Slide Entrance */
+.yt-smart-translate-text.theme-gaming.anim-cue-in {
+  animation: gaming-slide-in 0.26s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Sakura: Float Entrance */
+.yt-smart-translate-text.theme-sakura.anim-cue-in {
+  animation: float-in 0.35s ease-out forwards;
+}
+
+/* Default / Cinema / Nature / Invisible: Smooth Fade Entrance */
+.yt-smart-translate-text.theme-cinema.anim-cue-in,
+.yt-smart-translate-text.theme-nature.anim-cue-in,
+.yt-smart-translate-text.theme-invisible.anim-cue-in,
+.yt-smart-translate-text:not([class*="theme-"]).anim-cue-in,
+.yt-smart-translate-text.theme-default.anim-cue-in {
+  animation: smooth-fade-in 0.22s ease-out forwards;
+}
+
+/* --- Animation Intensity Modifiers --- */
+
+/* Subtle Mode: Remove aggressive wigglings / long keyframes */
+.anim-level-subtle .itl-p5-motion.anim-cue-in .itl-p5-dialog {
+  animation: smooth-fade-in 0.18s ease-out both !important;
+}
+
+.anim-level-subtle .itl-p5-motion.anim-cue-in .itl-p5-shard,
+.anim-level-subtle .itl-p5-motion.anim-cue-in .itl-p5-content {
+  animation: none !important;
+}
+
+.anim-level-subtle .yt-smart-translate-text.anim-cue-in {
+  animation: smooth-fade-in 0.18s ease-out forwards !important;
+}
+
+/* Off Mode: Instantly display with zero animation */
+.anim-level-off .yt-smart-translate-text,
+.anim-level-off .yt-smart-translate-text.anim-cue-in,
+.anim-level-off .itl-p5-motion,
+.anim-level-off .itl-p5-motion * {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* --- REAL-TIME AUTO WORD GLOW & KARAOKE AURA SYSTEM --- */
+.word-glow-active .yt-smart-translate-text,
+.word-glow-active.yt-smart-translate-text {
+  text-shadow:
+    0 0 10px rgba(255, 255, 255, 0.45),
+    0 0 20px rgba(255, 255, 255, 0.2),
+    1px 1px 2px rgba(0, 0, 0, 0.9) !important;
+}
+
+.word-glow-active .yt-highlight-word,
+.word-glow-active .yt-highlight-symbol,
+.word-glow-active .yt-highlight-number,
+.word-glow-active .yt-highlight-quote,
+.word-glow-active .yt-highlight-proper {
+  display: inline-block;
+  animation: itl-glow-pulse 2.2s infinite ease-in-out alternate;
+}
+
+@keyframes itl-glow-pulse {
+  0% {
+    filter: drop-shadow(0 0 3px currentColor) brightness(1);
+    transform: scale(1);
+  }
+  100% {
+    filter: drop-shadow(0 0 8px currentColor) brightness(1.22);
+    transform: scale(1.02);
+  }
+}
+
+/* Theme Adaptations for Auto Glow */
+/* Comic Heist (Persona 5) */
+.theme-comicHeist.word-glow-active .itl-p5-text,
+.word-glow-active .theme-comicHeist .itl-p5-text {
+  text-shadow:
+    2px 2px 0px #000000,
+    0 0 10px rgba(255, 51, 51, 0.7),
+    0 0 22px rgba(255, 215, 0, 0.4) !important;
+}
+
+/* Neon Glow Theme */
+.theme-neon.word-glow-active,
+.word-glow-active .theme-neon {
+  text-shadow:
+    0 0 8px currentColor,
+    0 0 18px currentColor,
+    0 0 32px rgba(0, 255, 255, 0.45),
+    1px 1px 2px rgba(0, 0, 0, 1) !important;
+}
+
+/* Sakura Theme */
+.theme-sakura.word-glow-active,
+.word-glow-active .theme-sakura {
+  text-shadow:
+    0 0 10px rgba(255, 182, 193, 0.65),
+    0 0 22px rgba(255, 105, 135, 0.4),
+    1px 1px 3px rgba(80, 0, 20, 0.9) !important;
+}
+
+/* Nature Theme */
+.theme-nature.word-glow-active,
+.word-glow-active .theme-nature {
+  text-shadow:
+    0 0 10px rgba(74, 222, 128, 0.65),
+    0 0 20px rgba(34, 197, 94, 0.35),
+    1px 1px 3px rgba(0, 20, 0, 0.9) !important;
+}
+
+/* Gaming HUD Theme */
+.theme-gaming.word-glow-active,
+.word-glow-active .theme-gaming {
+  text-shadow:
+    0 0 10px rgba(60, 130, 255, 0.75),
+    0 0 24px rgba(30, 80, 200, 0.45),
+    1px 1px 2px rgba(0, 0, 0, 0.9) !important;
+}
+
+/* Disable glow pulse if user turns off animations */
+.anim-level-off .word-glow-active .yt-highlight-word,
+.anim-level-off .word-glow-active .yt-highlight-symbol,
+.anim-level-off .word-glow-active .yt-highlight-number,
+.anim-level-off .word-glow-active .yt-highlight-quote,
+.anim-level-off .word-glow-active .yt-highlight-proper {
+  animation: none !important;
+}
+
+/* Accessibility: prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .yt-smart-translate-text,
+  .yt-smart-translate-text.anim-cue-in,
+  .yt-smart-translate-text::before,
+  .yt-smart-translate-text::after,
+  .word-glow-active .yt-highlight-word,
+  .word-glow-active .yt-highlight-symbol,
+  .word-glow-active .yt-highlight-number,
+  .word-glow-active .yt-highlight-quote,
+  .word-glow-active .yt-highlight-proper {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
 /* Chat History Overlay */
 #yt-smart-translate-history {
-  position: absolute;
+  position: fixed;
   top: 10%;
   left: 2%;
   width: 320px;
@@ -437,3 +956,464 @@
   font-weight: 500;
 }
 
+/* =========================================
+   EMOTION & TONE ANIMATIONS
+   ========================================= */
+
+/* Shout / Angry: Shake slightly once */
+@keyframes emotion-shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-4px) rotate(-1deg); }
+  50% { transform: translateX(4px) rotate(1deg); }
+  75% { transform: translateX(-4px) rotate(-1deg); }
+  100% { transform: translateX(0); }
+}
+.emotion-shout {
+  animation: emotion-shake 0.4s ease-in-out;
+}
+.emotion-shout .yt-smart-translate-text {
+  color: #ffcccc !important;
+  text-shadow: 0 0 10px rgba(255, 50, 50, 0.8), 0 2px 4px rgba(0,0,0,0.8) !important;
+}
+
+/* Sad / Hesitant: Slow drift fade */
+@keyframes emotion-drift {
+  0% { transform: translateY(10px); opacity: 0; filter: grayscale(50%); }
+  100% { transform: translateY(0); opacity: 0.9; filter: grayscale(50%); }
+}
+.emotion-sad {
+  animation: emotion-drift 1.5s ease-out;
+  opacity: 0.9;
+}
+.emotion-sad .yt-smart-translate-text {
+  color: #d0d0e0 !important;
+  text-shadow: 0 0 5px rgba(200, 200, 255, 0.5), 0 2px 4px rgba(0,0,0,0.8) !important;
+}
+
+/* Sing / Happy: Bouncing loop */
+@keyframes emotion-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.emotion-sing {
+  animation: emotion-bounce 1.5s infinite ease-in-out;
+}
+.emotion-sing .yt-smart-translate-text {
+  color: #ffccff !important;
+  text-shadow: 0 0 8px rgba(255, 100, 255, 0.8), 0 2px 4px rgba(0,0,0,0.8) !important;
+}
+
+/* Flirt / Playful: Gentle sway */
+@keyframes emotion-sway {
+  0%, 100% { transform: rotate(-2deg); }
+  50% { transform: rotate(2deg); }
+}
+.emotion-flirt {
+  animation: emotion-sway 3s infinite ease-in-out;
+}
+.emotion-flirt .yt-smart-translate-text {
+  color: #ffcccc !important;
+}
+\n/* =========================================
+   MANGA-STYLE SFX
+   ========================================= */
+
+#itl-manga-sfx-layer {
+  position: absolute;
+  top: -50%;
+  left: 0;
+  width: 100%;
+  height: 200%;
+  pointer-events: none;
+  z-index: -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+}
+
+.manga-sfx-text {
+  position: absolute;
+  font-family: 'Impact', 'Bangers', 'Comic Sans MS', sans-serif;
+  font-size: 80px;
+  font-weight: 900;
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.4);
+  text-transform: uppercase;
+  white-space: nowrap;
+  
+  /* Thick black outline and inner shadow */
+  -webkit-text-stroke: 3px rgba(0, 0, 0, 0.8);
+  text-shadow: 
+    4px 4px 0px #000, 
+    -2px -2px 0px #000,
+    0 10px 20px rgba(0,0,0,0.8);
+    
+  animation: manga-sfx-pop 2.5s ease-out forwards;
+}
+
+@keyframes manga-sfx-pop {
+  0% { 
+    transform: scale(0.1) rotate(0deg); 
+    opacity: 0; 
+  }
+  20% { 
+    transform: scale(1.2) rotate(-5deg); 
+    opacity: 1; 
+  }
+  30% { 
+    transform: scale(1) rotate(-3deg); 
+    opacity: 1; 
+  }
+  70% { 
+    transform: scale(1.1) rotate(-3deg) translateY(-20px); 
+    opacity: 0.8; 
+  }
+  100% { 
+    transform: scale(1.5) rotate(5deg) translateY(-50px); 
+    opacity: 0; 
+  }
+}
+\n/* =========================================
+   NEW ENTRANCE ANIMATION: SLIDE UP
+   ========================================= */
+@keyframes cinematic-slide-in {
+  0% { transform: translateY(40px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+.anim-slide-up {
+  animation: cinematic-slide-in 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) forwards !important;
+}
+
+/* =========================================
+   NEW ENTRANCE ANIMATION: SCI-FI EXPAND
+   ========================================= */
+@keyframes sci-fi-expand {
+  0% { transform: scaleY(0.01) scaleX(0.8); opacity: 0; }
+  50% { transform: scaleY(0.01) scaleX(1); opacity: 1; }
+  100% { transform: scaleY(1) scaleX(1); opacity: 1; }
+}
+
+.anim-expand {
+  animation: sci-fi-expand 0.4s cubic-bezier(0.1, 0.9, 0.2, 1) forwards !important;
+}
+
+/* =========================================
+   NEW ENTRANCE ANIMATION: DYNAMIC SLICE
+   ========================================= */
+@keyframes dynamic-slice-in {
+  0% { transform: translateX(-50px) skewX(-15deg); opacity: 0; filter: blur(4px); }
+  70% { transform: translateX(10px) skewX(-15deg); opacity: 1; filter: blur(0px); }
+  100% { transform: translateX(0) skewX(0deg); opacity: 1; filter: blur(0px); }
+}
+
+.anim-slice {
+  animation: dynamic-slice-in 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards !important;
+}
+
+/* =========================================
+   NEW ENTRANCE ANIMATION: PLAYFUL BOUNCE
+   ========================================= */
+@keyframes playful-bounce-in {
+  0% { transform: scale(0.3) translateY(30px); opacity: 0; }
+  50% { transform: scale(1.1) translateY(-10px); opacity: 1; }
+  70% { transform: scale(0.9) translateY(5px); }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.anim-bounce {
+  animation: playful-bounce-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
+}
+
+/* =========================================
+   NEW ENTRANCE ANIMATION: BURN-IN
+   ========================================= */
+@keyframes cinematic-burn-in {
+  0% { opacity: 0; filter: blur(8px) brightness(200%) sepia(100%) hue-rotate(-30deg) saturate(300%); transform: scale(1.05); }
+  50% { opacity: 0.8; filter: blur(3px) brightness(150%) sepia(50%) hue-rotate(-15deg) saturate(200%); transform: scale(1.02); }
+  100% { opacity: 1; filter: blur(0) brightness(100%) sepia(0) hue-rotate(0deg) saturate(100%); transform: scale(1); }
+}
+
+.anim-burn {
+  animation: cinematic-burn-in 0.6s ease-out forwards !important;
+}
+
+/* =========================================
+   NEW ENTRANCE ANIMATION: RIPPLE
+   ========================================= */
+@keyframes ripple-in {
+  0% { opacity: 0; transform: scale(0.9) skewX(5deg); filter: blur(4px) drop-shadow(0 0 10px rgba(0, 200, 255, 0.5)); }
+  25% { opacity: 0.8; transform: scale(1.05) skewX(-3deg); filter: blur(1px) drop-shadow(0 0 5px rgba(0, 200, 255, 0.3)); }
+  50% { opacity: 1; transform: scale(0.98) skewX(2deg); filter: blur(0px); }
+  75% { transform: scale(1.01) skewX(-1deg); }
+  100% { transform: scale(1) skewX(0); opacity: 1; filter: blur(0px); }
+}
+
+.anim-ripple {
+  animation: ripple-in 0.9s ease-in-out forwards !important;
+}
+
+/* =========================================
+   NEW ENTRANCE ANIMATION: 3D FLIP
+   ========================================= */
+@keyframes cinematic-flip-in {
+  0% { opacity: 0; transform: perspective(600px) rotateX(-90deg) scale(0.9); }
+  60% { opacity: 1; transform: perspective(600px) rotateX(15deg) scale(1.02); }
+  80% { transform: perspective(600px) rotateX(-5deg) scale(0.98); }
+  100% { opacity: 1; transform: perspective(600px) rotateX(0deg) scale(1); }
+}
+
+.anim-flip {
+  animation: cinematic-flip-in 0.65s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards !important;
+  transform-origin: center top;
+}
+
+/* =========================================
+   THEME: METAPHOR REFANTAZIO
+   ========================================= */
+
+.theme-metaphor {
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  border: none !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  justify-content: center !important;
+  align-items: center !important;
+  width: auto !important;
+  max-width: 90% !important;
+  /* Metaphor usually sits near the bottom center */
+}
+
+.itl-metaphor-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  position: relative;
+  font-family: "Times New Roman", Times, serif;
+}
+
+.itl-metaphor-speaker {
+  background: #ffffff;
+  color: #000000;
+  font-weight: bold;
+  font-size: 0.75em;
+  padding: 5px 25px;
+  margin-left: 35px;
+  margin-bottom: -4px;
+  position: relative;
+  z-index: 2;
+  text-transform: capitalize;
+  /* Simulating brush stroke edge */
+  clip-path: polygon(2% 5%, 100% 0%, 98% 95%, 0% 100%);
+}
+
+/* Hide speaker box if it's generic dialogue to match style */
+.itl-metaphor-speaker.generic-dialogue {
+  opacity: 0;
+  height: 0;
+  padding: 0;
+  margin: 0;
+  pointer-events: none;
+}
+
+.itl-metaphor-box {
+  position: relative;
+  padding: 15px 120px 15px 40px; /* More padding on right for the fade */
+  min-width: 450px;
+  color: #ffffff;
+  font-size: 1.1em;
+  display: flex;
+  align-items: center;
+  z-index: 1;
+}
+
+.itl-metaphor-bg {
+  position: absolute;
+  inset: 0;
+  transform: skewX(-20deg);
+  background: linear-gradient(to right, rgba(10, 10, 10, 0.95) 70%, rgba(10, 10, 10, 0) 100%);
+  z-index: -1;
+  /* The brush stroke on bottom and left */
+  border-bottom: 2px solid #ffffff;
+  border-left: 1.5px solid #ffffff;
+  box-shadow: -2px 2px 2px rgba(255, 255, 255, 0.2);
+}
+
+.itl-metaphor-text {
+  position: relative;
+  z-index: 2;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  /* The text container must NOT be skewed, so we don't skew it, 
+     because only the background is skewed. */
+}
+
+/* The UI crosshair on the right */
+.itl-metaphor-crosshair {
+  position: absolute;
+  right: -20px;
+  top: 0;
+  height: 100%;
+  width: 80px;
+  pointer-events: none;
+  z-index: 3;
+}
+\n
+.itl-metaphor-box::before {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 20px;
+  width: 35px;
+  height: 25px;
+  background-color: white;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M20 70 Q 40 40 60 70 T 90 60 Q 80 90 50 85 T 10 90 Z'/%3E%3Ccircle cx='15' cy='60' r='8'/%3E%3Ccircle cx='85' cy='80' r='6'/%3E%3Ccircle cx='40' cy='95' r='5'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M20 70 Q 40 40 60 70 T 90 60 Q 80 90 50 85 T 10 90 Z'/%3E%3Ccircle cx='15' cy='60' r='8'/%3E%3Ccircle cx='85' cy='80' r='6'/%3E%3Ccircle cx='40' cy='95' r='5'/%3E%3C/svg%3E");
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.itl-metaphor-box::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  right: 120px;
+  width: 55px;
+  height: 20px;
+  background-color: white;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M10 50 Q 40 30 70 50 T 90 60 Q 60 80 30 60 T 5 55 Z'/%3E%3Ccircle cx='20' cy='35' r='5'/%3E%3Ccircle cx='80' cy='75' r='6'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M10 50 Q 40 30 70 50 T 90 60 Q 60 80 30 60 T 5 55 Z'/%3E%3Ccircle cx='20' cy='35' r='5'/%3E%3Ccircle cx='80' cy='75' r='6'/%3E%3C/svg%3E");
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.8;
+}
+\n
+/* =========================================
+   THEME: MEDIEVAL FANTASY SCROLL
+   ========================================= */
+
+.theme-medieval {
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  border: none !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  justify-content: center !important;
+  align-items: center !important;
+  width: auto !important;
+  max-width: 85% !important;
+}
+
+.itl-medieval-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  font-family: "Georgia", "Palatino Linotype", "Times New Roman", serif;
+}
+
+.itl-medieval-speaker {
+  background: #2c1e16;
+  color: #e9dcb5;
+  font-weight: bold;
+  font-size: 0.85em;
+  padding: 4px 30px;
+  margin-bottom: -10px;
+  position: relative;
+  z-index: 2;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  border: 1px solid #c2a059;
+  border-radius: 4px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.4);
+}
+
+.itl-medieval-box {
+  position: relative;
+  padding: 25px 50px;
+  min-width: 400px;
+  background: #e9dcb5;
+  color: #2c1e16;
+  font-size: 1.15em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  z-index: 1;
+  border: 2px solid #8b6b4a;
+  border-radius: 2px;
+  /* Simulating aged paper with multiple inset shadows */
+  box-shadow: 
+    inset 0 0 30px rgba(100, 70, 30, 0.4),
+    inset 0 0 10px rgba(50, 30, 10, 0.3),
+    0 5px 15px rgba(0,0,0,0.5);
+  /* A very faint noise texture can be simulated with repeating gradients */
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(200, 170, 110, 0.05) 0px,
+    rgba(200, 170, 110, 0.05) 2px,
+    transparent 2px,
+    transparent 4px
+  );
+}
+
+.itl-medieval-text {
+  position: relative;
+  z-index: 2;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0.5px;
+  /* Since ink can bleed, add a tiny blur shadow */
+  text-shadow: 0px 0px 1px rgba(44, 30, 22, 0.3);
+}
+
+/* Ornate corner decorations using SVG Data URIs */
+.itl-medieval-corner {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  background-color: #8b6b4a;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M0 0 L50 0 C77.6 0 100 22.4 100 50 L100 100 L50 100 C22.4 100 0 77.6 0 50 L0 0 Z'/%3E%3Ccircle cx='50' cy='50' r='20' fill='none' stroke='black' stroke-width='10'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M0 0 L50 0 C77.6 0 100 22.4 100 50 L100 100 L50 100 C22.4 100 0 77.6 0 50 L0 0 Z'/%3E%3Ccircle cx='50' cy='50' r='20' fill='none' stroke='black' stroke-width='10'/%3E%3C/svg%3E");
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+
+.itl-medieval-corner.top-left {
+  top: 4px;
+  left: 4px;
+  transform: rotate(0deg);
+}
+
+.itl-medieval-corner.top-right {
+  top: 4px;
+  right: 4px;
+  transform: rotate(90deg);
+}
+
+.itl-medieval-corner.bottom-right {
+  bottom: 4px;
+  right: 4px;
+  transform: rotate(180deg);
+}
+
+.itl-medieval-corner.bottom-left {
+  bottom: 4px;
+  left: 4px;
+  transform: rotate(270deg);
+}
