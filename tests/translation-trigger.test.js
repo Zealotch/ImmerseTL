@@ -86,7 +86,7 @@ test('translation-trigger.js Orchestration', async (t) => {
       setTimeout(() => {
         assert.strictEqual(resultCount, 1, 'Only one result should fire');
         resolve();
-      }, 100);
+      }, 150);
     });
   });
 

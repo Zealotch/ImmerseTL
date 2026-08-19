@@ -456,6 +456,10 @@ window.ImmerseTL = window.ImmerseTL || {};
       clearTimeout(ITL.overlay.ghostTimeoutId);
       ITL.overlay.ghostTimeoutId = null;
     }
+    if (currentTextElement && currentTextElement._typewriterInterval) {
+      clearInterval(currentTextElement._typewriterInterval);
+      currentTextElement._typewriterInterval = null;
+    }
     currentText = "";
     let existingOverlay = document.getElementById('yt-smart-translate-overlay');
     if (existingOverlay) {
