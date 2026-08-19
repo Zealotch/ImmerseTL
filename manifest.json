@@ -25,6 +25,7 @@
         "content/settings.js",
         "content/history.js",
         "content/translator.js",
+        "content/caption-processor.js",
         "content/overlay.js",
         "content/caption-source.js",
         "content/content.js"
