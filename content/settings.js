@@ -98,7 +98,12 @@ window.ImmerseTL = window.ImmerseTL || {};
         if (changes.bgBlur) ITL.settings.bgBlur = changes.bgBlur.newValue;
         if (changes.fontColor) ITL.settings.fontColor = changes.fontColor.newValue || '#ffffff';
         if (changes.subtitleTheme) ITL.settings.subtitleTheme = changes.subtitleTheme.newValue || 'default';
-        if (changes.targetLang) ITL.settings.targetLang = changes.targetLang.newValue || 'id';
+        if (changes.targetLang) {
+          ITL.settings.targetLang = changes.targetLang.newValue || 'id';
+          if (ITL.translationTrigger && typeof ITL.translationTrigger.invalidateCurrentRequest === 'function') {
+            ITL.translationTrigger.invalidateCurrentRequest();
+          }
+        }
         if (changes.translateMode) ITL.settings.translateMode = changes.translateMode.newValue || 'default';
         if (changes.animationLevel) ITL.settings.animationLevel = changes.animationLevel.newValue || 'full';
         if (changes.wordGlowEnabled !== undefined) ITL.settings.wordGlowEnabled = changes.wordGlowEnabled.newValue;
@@ -178,7 +183,12 @@ window.ImmerseTL = window.ImmerseTL || {};
           if (s.bgBlur !== undefined) ITL.settings.bgBlur = s.bgBlur;
           if (s.fontColor !== undefined) ITL.settings.fontColor = s.fontColor;
           if (s.subtitleTheme !== undefined) ITL.settings.subtitleTheme = s.subtitleTheme;
-          if (s.targetLang !== undefined) ITL.settings.targetLang = s.targetLang;
+          if (s.targetLang !== undefined) {
+            ITL.settings.targetLang = s.targetLang;
+            if (ITL.translationTrigger && typeof ITL.translationTrigger.invalidateCurrentRequest === 'function') {
+              ITL.translationTrigger.invalidateCurrentRequest();
+            }
+          }
           if (s.translateMode !== undefined) ITL.settings.translateMode = s.translateMode;
           if (s.animationLevel !== undefined) ITL.settings.animationLevel = s.animationLevel;
           if (s.wordGlowEnabled !== undefined) ITL.settings.wordGlowEnabled = s.wordGlowEnabled;

@@ -19,6 +19,10 @@ window.ImmerseTL = window.ImmerseTL || {};
     currentRequestText = "";
   }
 
+  function invalidateCurrentRequest() {
+    currentRequestGeneration++;
+  }
+
   function scheduleTranslation(params) {
     const { text, targetLang, delay = 400, onResult, onError } = params;
     
@@ -63,6 +67,7 @@ window.ImmerseTL = window.ImmerseTL || {};
   ITL.translationTrigger = {
     scheduleTranslation: scheduleTranslation,
     cancelPendingTranslation: cancelPendingTranslation,
+    invalidateCurrentRequest: invalidateCurrentRequest,
     get currentRequestText() { return currentRequestText; },
     get currentRequestGeneration() { return currentRequestGeneration; }
   };
