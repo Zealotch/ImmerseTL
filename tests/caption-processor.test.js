@@ -44,4 +44,22 @@ test('caption-processor.js Pure Functions', async (t) => {
     assert.strictEqual(chunkResult, "", 'Empty text chunks to empty string');
   });
 
+  await t.test('CASE 7: Rolling caption update (YouTube Live ASR sliding window)', () => {
+    // English rolling window (1 word dropped on left, 1 added on right)
+    const rollingEn1 = isNewDialogueCue("the quick brown fox jumps", "quick brown fox jumps over", 1000, 1200);
+    assert.strictEqual(rollingEn1, false, 'Single word drop rolling window should be recognized as continuation');
+
+    // English rolling window (2 words dropped on left)
+    const rollingEn2 = isNewDialogueCue("the quick brown fox jumps", "brown fox jumps over a", 1000, 1200);
+    assert.strictEqual(rollingEn2, false, 'Multi word drop rolling window should be recognized as continuation');
+
+    // Japanese rolling window (character suffix overlap)
+    const rollingJa = isNewDialogueCue("こんばんはお久しぶりです", "お久しぶりです元気ですか", 1000, 1200);
+    assert.strictEqual(rollingJa, false, 'Japanese character suffix overlap should be recognized as continuation');
+
+    // Distinct sentence should still be detected as new cue
+    const distinct = isNewDialogueCue("the quick brown fox jumps", "where are we going today", 1000, 1200);
+    assert.strictEqual(distinct, true, 'Distinct text without overlap should be treated as new cue');
+  });
+
 });

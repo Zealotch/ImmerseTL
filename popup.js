@@ -46,8 +46,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // Modes & Toggles
   const enableSubtitleCheckbox = document.getElementById('enableSubtitle');
   const useNativeTranslationCheckbox = document.getElementById('useNativeTranslation');
-  const langRoutingRulesList = document.getElementById('langRoutingRulesList');
-  const addRoutingRuleBtn = document.getElementById('addRoutingRuleBtn');
   const showHistoryCheckbox = document.getElementById('showHistory');
   const isFreeFloatingCheckbox = document.getElementById('isFreeFloating');
   const wordGlowEnabledCheckbox = document.getElementById('wordGlowEnabled');
@@ -187,21 +185,6 @@ document.addEventListener('DOMContentLoaded', () => {
       notifyActiveTab(batchPayload, true);
     });
   }
-
-  // Load saved settings or use defaults
-  const defaultState = (typeof window !== 'undefined' && window.ImmerseTL_Common) 
-    ? window.ImmerseTL_Common.DEFAULT_SETTINGS 
-    : {
-        isSubtitleOverlayEnabled: true,
-        fontSize: 28,
-        bgOpacity: 60,
-        bgBlur: 8,
-        fontColor: '#ffffff',
-        showHistory: false,
-        isFreeFloating: false,
-        subtitleTheme: 'default',
-        activePreset: 'custom'
-      };
 
   // Load initial settings
   chrome.storage.local.get(window.ImmerseTL_Common.DEFAULT_SETTINGS, (items) => {

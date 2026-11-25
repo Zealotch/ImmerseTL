@@ -29,6 +29,14 @@ window.ImmerseTL = window.ImmerseTL || {};
     let container = targetContainer || getTargetContainer();
     if (!container) return null;
 
+    if (historyOverlay && historyContent) {
+      if (historyOverlay.parentElement !== container) {
+        container.appendChild(historyOverlay);
+      }
+      updatePositioningMode();
+      return historyOverlay;
+    }
+
     let existing = document.getElementById('yt-smart-translate-history');
     if (existing) {
       historyOverlay = existing;
@@ -107,7 +115,9 @@ window.ImmerseTL = window.ImmerseTL || {};
     const exportBtn = document.createElement('button');
     exportBtn.className = 'yt-history-btn yt-history-export-btn';
     exportBtn.textContent = '💾';
-    exportBtn.title = 'Export History to JSON';
+    let exportTitle = 'Export History to JSON';
+    try { exportTitle = chrome.i18n.getMessage("btnHistoryExport") || exportTitle; } catch(e) {}
+    exportBtn.title = exportTitle;
     exportBtn.onclick = (e) => {
       e.stopPropagation();
       if (subtitleHistory.length === 0) return;
@@ -184,7 +194,6 @@ window.ImmerseTL = window.ImmerseTL || {};
       ITL.makeDraggable(historyOverlay, headerContainer, 'historyDragX', 'historyDragY');
     }
 
-    renderHistory();
     return historyOverlay;
   }
 
@@ -222,6 +231,11 @@ window.ImmerseTL = window.ImmerseTL || {};
   }
 
   function renderHistory() {
+    const isVisible = (ITL.settings && ITL.settings.showHistory === true);
+    if (!isVisible) {
+      return;
+    }
+
     ensureHistoryOverlay();
     if (!historyOverlay || !historyContent) return;
 
@@ -300,4 +314,16 @@ window.ImmerseTL = window.ImmerseTL || {};
     get content() { return historyContent; },
     get list() { return subtitleHistory; }
   };
+
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+      ensureHistoryOverlay,
+      updateHistory,
+      renderHistory,
+      clearHistory,
+      get list() { return subtitleHistory; },
+      get overlay() { return historyOverlay; },
+      get content() { return historyContent; }
+    };
+  }
 })(window.ImmerseTL);

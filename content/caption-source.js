@@ -18,14 +18,41 @@ window.ImmerseTL = window.ImmerseTL || {};
       return !segments.some(other => other !== seg && seg.contains(other));
     });
 
+    let raw = "";
     if (leafSegments.length > 0) {
-      return leafSegments.map(seg => seg.textContent).join(' ');
+      raw = leafSegments.map(seg => seg.textContent).join(' ');
+    } else {
+      raw = targetNode.textContent || "";
     }
-    return targetNode.textContent || "";
+
+    if (ITL.captionProcessor && typeof ITL.captionProcessor.filterAudioTags === 'function') {
+      return ITL.captionProcessor.filterAudioTags(raw);
+    }
+    return raw;
   }
 
   function checkObserver() {
     if (!document.querySelector('video')) return;
+
+    // --- Orphaned Observer GC ---
+    // YouTube sometimes replaces caption DOM nodes (ads, mid-roll, reconnect).
+    // Old MutationObservers remain alive but observe detached (orphaned) nodes —
+    // they waste memory and will never fire again. Clean them up here.
+    if (subtitleObservers.length > 0) {
+      subtitleObservers = subtitleObservers.filter(({ obs, node }) => {
+        if (!node.isConnected) {
+          obs.disconnect();
+          // Also clear the dataset flag so the node can be re-observed if it
+          // somehow re-enters the DOM (edge-case safety net).
+          if (node.dataset) delete node.dataset.isObservedByImmerseTL;
+          return false; // remove from array
+        }
+        return true; // keep connected observer
+      });
+      if (subtitleObservers.length === 0) {
+        isObserverHooked = false;
+      }
+    }
 
     const targetNodes = document.querySelectorAll('.ytp-caption-window-container, #ytp-caption-window-container, .caption-window');
     let anyVisible = false;
@@ -40,8 +67,12 @@ window.ImmerseTL = window.ImmerseTL || {};
         
         let initialText = extractCaptionText(targetNode);
         
-        if (initialText && initialText.trim() && ITL.overlay && typeof ITL.overlay.updateCustomSubtitle === 'function') {
-          ITL.overlay.updateCustomSubtitle(initialText);
+        if (initialText && initialText.trim()) {
+          if (ITL.cueStabilizer && typeof ITL.cueStabilizer.process === 'function') {
+            ITL.cueStabilizer.process(initialText);
+          } else if (ITL.overlay && typeof ITL.overlay.updateCustomSubtitle === 'function') {
+            ITL.overlay.updateCustomSubtitle(initialText);
+          }
         }
 
         let lastExtractedText = initialText || "";
@@ -78,7 +109,9 @@ window.ImmerseTL = window.ImmerseTL || {};
 
             if (fullText !== lastExtractedText) {
               lastExtractedText = fullText;
-              if (ITL.overlay && typeof ITL.overlay.updateCustomSubtitle === 'function') {
+              if (ITL.cueStabilizer && typeof ITL.cueStabilizer.process === 'function') {
+                ITL.cueStabilizer.process(fullText);
+              } else if (ITL.overlay && typeof ITL.overlay.updateCustomSubtitle === 'function') {
                 ITL.overlay.updateCustomSubtitle(fullText);
               }
             }
@@ -89,6 +122,9 @@ window.ImmerseTL = window.ImmerseTL || {};
                 ITL.overlay.hideGraceTimeoutId = setTimeout(() => {
                   lastExtractedText = "";
                   ITL.overlay.hideGraceTimeoutId = null;
+                  if (ITL.cueStabilizer && typeof ITL.cueStabilizer.finalize === 'function') {
+                    ITL.cueStabilizer.finalize();
+                  }
                   if (ITL.overlay.currentTextElement) {
                     ITL.overlay.currentTextElement.style.opacity = '0';
                     ITL.overlay.ghostTimeoutId = setTimeout(() => {
@@ -113,7 +149,7 @@ window.ImmerseTL = window.ImmerseTL || {};
           attributes: true,
           attributeFilter: ['style', 'class']
         });
-        subtitleObservers.push(obs);
+        subtitleObservers.push({ obs, node: targetNode });
       }
       
       const compStyle = getComputedStyle(targetNode);
@@ -165,8 +201,23 @@ window.ImmerseTL = window.ImmerseTL || {};
   function cleanup() {
     // Disconnect all observers to prevent memory leaks and ghosts
     if (subtitleObservers && subtitleObservers.length > 0) {
-      subtitleObservers.forEach(obs => obs.disconnect());
+      subtitleObservers.forEach(({ obs }) => obs.disconnect());
       subtitleObservers = [];
+    }
+
+    if (ITL.overlay) {
+      if (ITL.overlay.hideGraceTimeoutId) {
+        clearTimeout(ITL.overlay.hideGraceTimeoutId);
+        ITL.overlay.hideGraceTimeoutId = null;
+      }
+      if (ITL.overlay.clearTimeoutId) {
+        clearTimeout(ITL.overlay.clearTimeoutId);
+        ITL.overlay.clearTimeoutId = null;
+      }
+      if (ITL.overlay.ghostTimeoutId) {
+        clearTimeout(ITL.overlay.ghostTimeoutId);
+        ITL.overlay.ghostTimeoutId = null;
+      }
     }
 
     // Reset observing flags on existing DOM nodes

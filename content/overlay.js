@@ -10,6 +10,7 @@ window.ImmerseTL = window.ImmerseTL || {};
   let lastCueText = "";
   let lastCueTime = 0;
   let lastDetectedSourceLang = null;
+  let lastTransData = null;
 
   function updateVisibility() {
     const isEnabled = ITL.settings ? ITL.settings.isSubtitleOverlayEnabled : true;
@@ -216,6 +217,7 @@ window.ImmerseTL = window.ImmerseTL || {};
 
   function applyTypewriterEffect(element) {
     if (element._typewriterInterval) clearInterval(element._typewriterInterval);
+    if (typeof document.createTreeWalker !== 'function') return;
     
     // Find all text nodes excluding script/style tags
     const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, {
@@ -293,7 +295,7 @@ window.ImmerseTL = window.ImmerseTL || {};
     updateVisibility();
   }
 
-  async function updateCustomSubtitle(text, forceRerender = false, animate = true) {
+  async function updateCustomSubtitle(text, forceRerender = false, animate = true, bypassSchedule = false) {
     if (!overlayElement) createOverlay();
     if (!overlayElement) return;
     
@@ -392,19 +394,38 @@ window.ImmerseTL = window.ImmerseTL || {};
         currentTextElement.innerHTML = initialHtml;
       }
       
-      if (isNewCue) { triggerCueAnimation(); if (ITL.settings && ITL.settings.typewriterEffect) applyTypewriterEffect(currentTextElement); }
+      applyEmotionClasses(displayText);
+      if (isNewCue) {
+        triggerCueAnimation();
+        spawnMangaSFX(displayText);
+        if (ITL.settings && ITL.settings.typewriterEffect) applyTypewriterEffect(currentTextElement);
+      }
       currentTextElement.style.opacity = '1';
       currentTextElement.style.transform = 'translateY(0)';
       if (ITL.history) ITL.history.update(displayText);
       return;
     }
 
+    const hasValidLastTrans = !!(lastTransData && lastTransData.text === displayText && lastTransData.targetLang === targetLang);
+
     if (cachedTrans) {
+      lastTransData = { ...cachedTrans, text: displayText, targetLang: targetLang };
       currentTextElement.innerHTML = renderTransData(cachedTrans);
-      if (isNewCue) triggerCueAnimation();
+      const renderedText = cachedTrans.translation || displayText;
+      applyEmotionClasses(renderedText);
+      if (isNewCue) {
+        triggerCueAnimation();
+        spawnMangaSFX(renderedText);
+        if (ITL.settings && ITL.settings.typewriterEffect) applyTypewriterEffect(currentTextElement);
+      }
       currentTextElement.style.opacity = '1';
       currentTextElement.style.transform = 'translateY(0)';
-      if (ITL.history) ITL.history.update(displayText);
+      if (ITL.history) ITL.history.update(displayText, cachedTrans);
+    } else if (hasValidLastTrans && forceRerender) {
+      currentTextElement.innerHTML = renderTransData(lastTransData);
+      applyEmotionClasses(lastTransData.translation || displayText);
+      currentTextElement.style.opacity = '1';
+      currentTextElement.style.transform = 'translateY(0)';
     } else {
       // If we don't have it cached, wait silently.
       // This leaves the OLD translated text on screen during the 400ms debounce
@@ -417,16 +438,20 @@ window.ImmerseTL = window.ImmerseTL || {};
     }
 
     // 2. Debounce the translation fetch (400ms)
-    if (ITL.translationTrigger && !cachedTrans) {
+    if (!bypassSchedule && ITL.translationTrigger && !cachedTrans && !hasValidLastTrans) {
       ITL.translationTrigger.scheduleTranslation({
         text: displayText,
         targetLang: targetLang,
-        delay: 400,
+        delay: 0,
         onResult: (transData) => {
           if (text !== currentText) return;
-          
+          lastTransData = { ...transData, text: displayText, targetLang: targetLang };
           currentTextElement.innerHTML = renderTransData(transData);
-          if (isNewCue) { triggerCueAnimation(); if (ITL.settings && ITL.settings.typewriterEffect) applyTypewriterEffect(currentTextElement); }
+          const renderedText = transData.translation || displayText;
+          applyEmotionClasses(renderedText);
+          if (isNewCue) triggerCueAnimation();
+          spawnMangaSFX(renderedText);
+          if (ITL.settings && ITL.settings.typewriterEffect) applyTypewriterEffect(currentTextElement);
           
           currentTextElement.style.opacity = '1';
           currentTextElement.style.transform = 'translateY(0)';
@@ -435,12 +460,20 @@ window.ImmerseTL = window.ImmerseTL || {};
         },
         onError: () => {
           if (text === currentText) {
-            const initialHtml = renderModeInitial('default', safeRaw, '<span style="color:#ff6b6b; font-size:0.8em;">[Koneksi Terjemahan Gagal/Limit]</span>');
+            // Smart Fallback: Render original dialogue text with subtle badge so subtitles never disappear
+            const fallbackBadge = '<span class="itl-fallback-badge" style="display:inline-block; margin-left:6px; font-size:0.75em; opacity:0.65; vertical-align:middle;" title="Koneksi terjemahan sedang limit/rehat, menampilkan teks asli">[Asli]</span>';
+            const fallbackTarget = `${safeRaw} ${fallbackBadge}`;
+            const initialHtml = renderModeInitial(translateMode, safeRaw, fallbackTarget);
             if (ITL.themeRenderer && typeof ITL.themeRenderer.renderFinalSubtitle === 'function') {
               currentTextElement.innerHTML = ITL.themeRenderer.renderFinalSubtitle(initialHtml, displayText, theme, { fontColor });
             } else {
               currentTextElement.innerHTML = initialHtml;
             }
+            lastTransData = { translation: fallbackTarget, sourceLang: 'auto', romaji: '', text: displayText, targetLang: targetLang };
+            if (isNewCue) triggerCueAnimation();
+            currentTextElement.style.opacity = '1';
+            currentTextElement.style.transform = 'translateY(0)';
+            if (ITL.history) ITL.history.update(displayText);
           }
         }
       });
@@ -452,6 +485,10 @@ window.ImmerseTL = window.ImmerseTL || {};
       clearTimeout(clearTimeoutId);
       clearTimeoutId = null;
     }
+    if (ITL.overlay && ITL.overlay.hideGraceTimeoutId) {
+      clearTimeout(ITL.overlay.hideGraceTimeoutId);
+      ITL.overlay.hideGraceTimeoutId = null;
+    }
     if (ITL.overlay && ITL.overlay.ghostTimeoutId) {
       clearTimeout(ITL.overlay.ghostTimeoutId);
       ITL.overlay.ghostTimeoutId = null;
@@ -461,6 +498,9 @@ window.ImmerseTL = window.ImmerseTL || {};
       currentTextElement._typewriterInterval = null;
     }
     currentText = "";
+    lastCueText = "";
+    lastCueTime = 0;
+    lastTransData = null;
     let existingOverlay = document.getElementById('yt-smart-translate-overlay');
     if (existingOverlay) {
       existingOverlay.remove();

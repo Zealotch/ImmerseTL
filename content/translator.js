@@ -3,6 +3,7 @@
 window.ImmerseTL = window.ImmerseTL || {};
 
 (function (ITL) {
+  const MAX_CACHE_SIZE = 1000;
   const translationCache = new Map();
 
   function getCachedTranslation(text, targetLang) {
@@ -62,7 +63,7 @@ window.ImmerseTL = window.ImmerseTL || {};
 
             const result = { translation: response.translation, romaji: response.romaji, sourceLang: response.sourceLang };
             
-            if (translationCache.size > 150) {
+            if (translationCache.size >= MAX_CACHE_SIZE) {
               const firstKey = translationCache.keys().next().value;
               translationCache.delete(firstKey);
             }
@@ -176,6 +177,20 @@ window.ImmerseTL = window.ImmerseTL || {};
   ITL.translator = {
     getCachedTranslation: getCachedTranslation,
     fetchTranslation: fetchTranslation,
-    highlightSafeText: highlightSafeText
+    highlightSafeText: highlightSafeText,
+    get cacheSize() { return translationCache.size; },
+    get maxCacheSize() { return MAX_CACHE_SIZE; },
+    clearCache: () => translationCache.clear()
   };
+
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+      getCachedTranslation,
+      fetchTranslation,
+      highlightSafeText,
+      get cacheSize() { return translationCache.size; },
+      get maxCacheSize() { return MAX_CACHE_SIZE; },
+      clearCache: () => translationCache.clear()
+    };
+  }
 })(window.ImmerseTL);

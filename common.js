@@ -30,6 +30,20 @@ const THEME_TOKENS = Object.freeze({
     fontWeight: 600,
     highContrast: true
   },
+  metaphor: {
+    label: 'Metaphor: ReFantazio',
+    animation: 'fade',
+    borderRadius: '0px',
+    fontWeight: 500,
+    highContrast: true
+  },
+  medieval: {
+    label: 'Fantasy Scroll (Medieval)',
+    animation: 'fade',
+    borderRadius: '2px',
+    fontWeight: 500,
+    highContrast: true
+  },
   neon: {
     label: 'Neon Glow',
     animation: 'glitch',
@@ -131,7 +145,7 @@ const PRESETS = Object.freeze({
       fontColor: '#ffd700',
       bgOpacity: 75,
       bgBlur: 10,
-      translateMode: 'dual_id',
+      translateMode: 'dual',
       isSubtitleOverlayEnabled: true
     }
   },
@@ -231,7 +245,6 @@ function validateSettings(settings) {
     mangaSfxEnabled: typeof settings.mangaSfxEnabled === 'boolean' ? settings.mangaSfxEnabled : DEFAULT_SETTINGS.mangaSfxEnabled,
     useNativeTranslation: typeof settings.useNativeTranslation === 'boolean' ? settings.useNativeTranslation : DEFAULT_SETTINGS.useNativeTranslation,
     targetLang: typeof settings.targetLang === 'string' ? settings.targetLang : DEFAULT_SETTINGS.targetLang,
-    translateMode: typeof settings.translateMode === 'string' ? settings.translateMode : DEFAULT_SETTINGS.translateMode,
     activePreset: typeof settings.activePreset === 'string' ? settings.activePreset : DEFAULT_SETTINGS.activePreset,
     customPresets: typeof settings.customPresets === 'object' && settings.customPresets !== null ? settings.customPresets : DEFAULT_SETTINGS.customPresets,
     dragX: typeof settings.dragX === 'number' ? settings.dragX : DEFAULT_SETTINGS.dragX,

@@ -103,11 +103,18 @@ window.ImmerseTL = window.ImmerseTL || {};
           if (ITL.translationTrigger && typeof ITL.translationTrigger.invalidateCurrentRequest === 'function') {
             ITL.translationTrigger.invalidateCurrentRequest();
           }
+          if (ITL.cueStabilizer && typeof ITL.cueStabilizer.retranslateCurrentCue === 'function') {
+            ITL.cueStabilizer.retranslateCurrentCue();
+          }
         }
         if (changes.translateMode) ITL.settings.translateMode = changes.translateMode.newValue || 'default';
         if (changes.animationLevel) ITL.settings.animationLevel = changes.animationLevel.newValue || 'full';
         if (changes.wordGlowEnabled !== undefined) ITL.settings.wordGlowEnabled = changes.wordGlowEnabled.newValue;
         if (changes.autoEmojiEnabled !== undefined) ITL.settings.autoEmojiEnabled = changes.autoEmojiEnabled.newValue;
+        if (changes.useNativeTranslation !== undefined) ITL.settings.useNativeTranslation = changes.useNativeTranslation.newValue;
+        if (changes.typewriterEffect !== undefined) ITL.settings.typewriterEffect = changes.typewriterEffect.newValue;
+        if (changes.emotionDetection !== undefined) ITL.settings.emotionDetection = changes.emotionDetection.newValue;
+        if (changes.mangaSfxEnabled !== undefined) ITL.settings.mangaSfxEnabled = changes.mangaSfxEnabled.newValue;
         
         if (changes.dragX && ITL.overlay && ITL.overlay.element) {
           ITL.settings.dragX = changes.dragX.newValue;
@@ -188,11 +195,18 @@ window.ImmerseTL = window.ImmerseTL || {};
             if (ITL.translationTrigger && typeof ITL.translationTrigger.invalidateCurrentRequest === 'function') {
               ITL.translationTrigger.invalidateCurrentRequest();
             }
+            if (ITL.cueStabilizer && typeof ITL.cueStabilizer.retranslateCurrentCue === 'function') {
+              ITL.cueStabilizer.retranslateCurrentCue();
+            }
           }
           if (s.translateMode !== undefined) ITL.settings.translateMode = s.translateMode;
           if (s.animationLevel !== undefined) ITL.settings.animationLevel = s.animationLevel;
           if (s.wordGlowEnabled !== undefined) ITL.settings.wordGlowEnabled = s.wordGlowEnabled;
           if (s.autoEmojiEnabled !== undefined) ITL.settings.autoEmojiEnabled = s.autoEmojiEnabled;
+          if (s.useNativeTranslation !== undefined) ITL.settings.useNativeTranslation = s.useNativeTranslation;
+          if (s.typewriterEffect !== undefined) ITL.settings.typewriterEffect = s.typewriterEffect;
+          if (s.emotionDetection !== undefined) ITL.settings.emotionDetection = s.emotionDetection;
+          if (s.mangaSfxEnabled !== undefined) ITL.settings.mangaSfxEnabled = s.mangaSfxEnabled;
           if (s.activePreset !== undefined) ITL.settings.activePreset = s.activePreset;
           if (s.showHistory !== undefined) {
             ITL.settings.showHistory = s.showHistory;

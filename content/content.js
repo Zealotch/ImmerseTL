@@ -11,18 +11,22 @@ window.ImmerseTL = window.ImmerseTL || {};
       ITL.captionSource.cleanup();
     }
 
-    // 2. Clear translation debounce & queue
+    // 2. Discard pending cue stabilizer timers & state without emitting stale cues
+    if (ITL.cueStabilizer && typeof ITL.cueStabilizer.cleanup === 'function') {
+      ITL.cueStabilizer.cleanup();
+    }
+
+    // 3. Clear translation debounce & queue
     if (ITL.translationTrigger && typeof ITL.translationTrigger.cancelPendingTranslation === 'function') {
       ITL.translationTrigger.cancelPendingTranslation();
     }
 
-
-    // 3. Clear subtitle overlay DOM & fade-out timeouts
+    // 4. Clear subtitle overlay DOM & fade-out timeouts
     if (ITL.overlay && typeof ITL.overlay.clear === 'function') {
       ITL.overlay.clear();
     }
 
-    // 4. Clear history transcript
+    // 5. Clear history transcript
     if (ITL.history && typeof ITL.history.clear === 'function') {
       ITL.history.clear();
     }
@@ -117,13 +121,19 @@ window.ImmerseTL = window.ImmerseTL || {};
     }
   });
 
-  // Start periodic check loop & initial bootstrap
-  if (ITL.captionSource && typeof ITL.captionSource.startObserverLoop === 'function') {
-    ITL.captionSource.startObserverLoop();
-  }
+  // Start periodic check loop & initial bootstrap (skip auto-timers when required in unit tests)
+  if (typeof module === 'undefined') {
+    if (ITL.captionSource && typeof ITL.captionSource.startObserverLoop === 'function') {
+      ITL.captionSource.startObserverLoop();
+    }
 
-  setTimeout(initPage, 1500);
+    setTimeout(initPage, 1500);
+  }
 
   ITL.cleanupPage = cleanupPage;
   ITL.initPage = initPage;
+
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { cleanupPage, initPage };
+  }
 })(window.ImmerseTL);
